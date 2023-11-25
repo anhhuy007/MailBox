@@ -1,0 +1,13 @@
+{
+      "userMail": "mail1@gmail.com",
+      "From": "<codingAkerman@fit.hcmus.edu.vn>",
+      "SendMethod": "1",
+      "Date": "21:52:42 25/11/2023",
+      "Subject": "test",
+      "Content": "before push code",
+      "RecipientList": [
+            "mail1@gmail.com",
+            "mail2@gmail.com"
+      ],
+      "Seen": 0
+}

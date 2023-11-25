@@ -236,6 +236,7 @@ class MailApp(ft.UserControl):
 
 
 async def main(page: ft.Page):
+    page.theme_mode = ft.ThemeMode.LIGHT
     page.title = "MailBox"
     page.scroll = ft.ScrollMode.ADAPTIVE
     page.fonts = {

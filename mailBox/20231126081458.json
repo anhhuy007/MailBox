@@ -1,0 +1,10 @@
+{
+    "usermail": "mail1@gmail.com",
+    "from": "<codingAkerman@fit.hcmus.edu.vn>",
+    "sendmethod": "2",
+    "date": "08:14:58 26/11/2023",
+    "subject": "test after pull",
+    "content": "",
+    "recipientlist": ["mail1@gmail.com", "mail2@gmail.com"],
+    "seen": 0
+}

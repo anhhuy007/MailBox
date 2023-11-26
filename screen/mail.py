@@ -1,5 +1,6 @@
 import flet as ft
-
+import mail_content_view as MailContentView
+import mail_compose_view as MailComposeSheet
 
 class AppHeader(ft.UserControl):
     def build(self):
@@ -48,6 +49,13 @@ class Mail(ft.UserControl):
         self.title = title
         self.content = content
         self.date = date
+        self.bs = MailContentView.MailContentView(sender, "", title, date, content)
+        self.bs.open = False
+
+    async def on_email_clicked(self, e):
+        print("on click")
+        self.bs.open = True
+        await self.bs.update_async()
 
     def build(self):
         return ft.Container(
@@ -88,35 +96,30 @@ class Mail(ft.UserControl):
                         ]
                     )
                 ]
-            )
+            ),
+            on_click=self.on_email_clicked
         )
 
+    async def did_mount_async(self):
+        self.page.overlay.append(self.bs)
+        await self.page.update_async()
 
-class MailContent(ft.UserControl):
-    def build(self):
-        mails = ft.Column()
-
-        mail = Mail("anhhuy007@gmail.com", "Check mail", "Check this email please", "31/12/2023")
-        mails.controls.append(mail)
-
-        return ft.Container(
-            border_radius=10,
-            expand=True,
-            content=mails,
-        )
-
+    # happens when example is removed from the page (when user chooses different control group on the navigation rail)
+    async def will_unmount_async(self):
+        self.page.overlay.remove(self.bs)
+        await self.page.update_async()
 
 class InboxPage(ft.UserControl):
     def build(self):
-
         async def add_mail(self, mail):
-            self.mails.control.append(mail)
+            await self.mails.control.append(mail)
 
         mails = ft.Column(spacing=3)
 
         # default emails
         mail = Mail("anhhuy007@gmail.com", "Check mail", "Check this email please", "31/12/2023")
-        mail2 = Mail("anhhuy007", "Checking for spacing and scaling", "Check this email without open it and then...","31/12/2023")
+        mail2 = Mail("anhhuy007", "Checking for spacing and scaling", "Check this email without open it and then...",
+                     "31/12/2023")
         mails.controls.append(mail)
         mails.controls.append(mail2)
 
@@ -147,6 +150,7 @@ class InboxPage(ft.UserControl):
             )
 
         ]))
+
         return ft.Card(
             elevation=10,
             surface_tint_color=ft.colors.WHITE,
@@ -162,9 +166,45 @@ class InboxPage(ft.UserControl):
         )
 
 
+
+def ComposeButton():
+    class ComposeButton(ft.FloatingActionButton):
+        def __init__(self):
+            super().__init__()
+            self.icon = ft.icons.CREATE
+            self.text = "Compose"
+            self.on_click = self.show_bs
+            self.bs = MailComposeSheet.MailComposeView()
+
+        def bs_dismissed(self, e):
+            print("Dismissed!")
+
+        async def show_bs(self, e):
+            self.bs.open = True
+            await self.bs.update_async()
+
+        async def close_bs(self, e):
+            self.bs.open = False
+            await self.bs.update_async()
+
+        # happens when example is added to the page (when user chooses the BottomSheet control from the grid)
+        async def did_mount_async(self):
+            self.page.overlay.append(self.bs)
+            await self.page.update_async()
+
+        # happens when example is removed from the page (when user chooses different control group on the navigation rail)
+        async def will_unmount_async(self):
+            self.page.overlay.remove(self.bs)
+            await self.page.update_async()
+
+    compose_button = ComposeButton()
+    compose_button.width = 140
+
+    return compose_button
+
+
 class AppBody(ft.UserControl):
     def build(self):
-
         # AppBody attributes
         pages = [
             InboxPage(),
@@ -172,25 +212,22 @@ class AppBody(ft.UserControl):
             ft.Container(content=ft.Text("Page 3")),
         ]
 
-        container = ft.Container(content=pages[0], expand=True)
+        page = ft.Container(content=pages[0], expand=True)
 
         # functions
         async def on_page_change(e):
-            container.content = pages[e.control.selected_index]
+            page.content = pages[e.control.selected_index]
             print("Current page: ", e.control.selected_index)
             await self.update_async()
 
-        async def update_async():
-            await super().update_async()
-
-        async def on_compose_click(self):
+        async def on_compose_click(self, e):
             pass
 
         # navigation rail
         rail = ft.NavigationRail(
             selected_index=0,
             label_type=ft.NavigationRailLabelType.ALL,
-            leading=ft.FloatingActionButton(icon=ft.icons.CREATE, text="Compose", on_click=on_compose_click),
+            leading=ComposeButton(),
             group_alignment=-0.9,
             destinations=[
                 ft.NavigationRailDestination(
@@ -219,7 +256,7 @@ class AppBody(ft.UserControl):
             controls=[
                 rail,
                 ft.VerticalDivider(width=2, color=ft.colors.BLACK),
-                container
+                page
             ],
         )
 
@@ -230,7 +267,7 @@ class MailApp(ft.UserControl):
             expand=True,
             controls=[
                 AppHeader(),
-                AppBody()
+                AppBody(),
             ]
         )
 

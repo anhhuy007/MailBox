@@ -3,7 +3,8 @@ import socket
 import datetime
 import json
 
-'mail1@gmail.com\r\nmail2@gmail.com\r\n'
+
+#smtp file
 
 def getTime():
     now = datetime.datetime.now()
@@ -52,26 +53,26 @@ def saveMail(mailData,usereMail):
         dataDict = {}
         startList = 0
         endList = 0
-        dataDict["userMail"] = usereMail
+        dataDict["usermail"] = usereMail
         mailData = mailData.split("\r\n")
         
         for i in range (0,len(mailData)):
             if "from" in mailData[i].lower():
-                dataDict["From"] = mailData[i].split(" ")[1]
+                dataDict["from"] = mailData[i].split(" ")[1]
             if "sendmethod" in mailData[i].lower():
-                dataDict["SendMethod"] = mailData[i].split(" ")[1]
+                dataDict["sendmethod"] = mailData[i].split(" ")[1]
                 startList = i + 2
             if "date" in mailData[i].lower():
-                dataDict["Date"] = mailData[i].split(" ",1)[1]
-                dateInfo = dataDict["Date"]
+                dataDict["date"] = mailData[i].split(" ",1)[1]
+                dateInfo = dataDict["date"]
                 endList = i
             if "subject" in mailData[i].lower():
-                dataDict["Subject"] = mailData[i].split(" ")[1]           
+                dataDict["subject"] = mailData[i].split(" ")[1]           
             if "content" in mailData[i].lower():
-                dataDict["Content"] = mailData[i+1]
+                dataDict["content"] = mailData[i+1]
 
-        dataDict["RecipientList"] = mailData[startList:endList]
-        dataDict["Seen"] = 0
+        dataDict["recipientlist"] = mailData[startList:endList]
+        dataDict["seen"] = 0
 
         print(json.dumps(dataDict,indent= 6))
 

@@ -80,6 +80,6 @@ finally:
     # QUIT
     quitCmd = "QUIT\r\n"
     clientSocket.send(quitCmd.encode())
-    recv = clientSocket.recv(1024)
+    print("Close connection")
 
 

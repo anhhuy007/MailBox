@@ -44,7 +44,7 @@ def getFileName(timeInfo):
 
 
 
-def saveMail(mailData,usereMail):
+def saveMail(mailData,userEmail):
     try:
         
         # mail to pypthon dictionary
@@ -53,21 +53,21 @@ def saveMail(mailData,usereMail):
         dataDict = {}
         startList = 0
         endList = 0
-        dataDict["usermail"] = usereMail
+        dataDict["usermail"] = userEmail
         mailData = mailData.split("\r\n")
         
         for i in range (0,len(mailData)):
             if "from" in mailData[i].lower():
-                dataDict["from"] = mailData[i].split(" ")[1]
+                dataDict["from"] = mailData[i].split(" ",1)[1]
             if "sendmethod" in mailData[i].lower():
-                dataDict["sendmethod"] = mailData[i].split(" ")[1]
+                dataDict["sendmethod"] = mailData[i].split(" ",1)[1]
                 startList = i + 2
             if "date" in mailData[i].lower():
                 dataDict["date"] = mailData[i].split(" ",1)[1]
                 dateInfo = dataDict["date"]
                 endList = i
             if "subject" in mailData[i].lower():
-                dataDict["subject"] = mailData[i].split(" ")[1]           
+                dataDict["subject"] = mailData[i].split(" ",1)[1]           
             if "content" in mailData[i].lower():
                 dataDict["content"] = mailData[i+1]
 

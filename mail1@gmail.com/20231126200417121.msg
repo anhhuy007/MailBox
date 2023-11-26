@@ -3,7 +3,7 @@ SendMethod: 1
 To: 
 mail1@gmail.com
 mail2@gmail.com
-Date: 07:45:18 26/11/2023
-Subject: test when msg download
+Date: 20:03:51 26/11/2023
+Subject: test smtp file after add class
 Content: 
-when???
+ijij ijijij ij ijij ij ij i ji

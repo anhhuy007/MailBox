@@ -28,11 +28,6 @@ def toInfoProccess(method, listRecipient):
 
 
 
-
-
-
-
-
 # pop3 file
 #format file name yyyymmddhhmmss
 def getFileName(timeInfo):

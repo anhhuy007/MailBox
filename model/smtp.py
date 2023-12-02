@@ -1,12 +1,26 @@
 import socket
 import datetime
 import myFunction
+import myClass
+import os
+import base64
+import traceback
 
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 
 class SMTPCLIENT:
     
     recipientList = []
+    to_recipient = []
+    cc_list = []
+    bcc_list = []
+    ATTACHMENT_LIST = []
+
     sendMethod = 0
     def __init__(self, server, port, addr, clientAddr, userEmail, clientSocket ):
         self.server = server
@@ -43,35 +57,56 @@ class SMTPCLIENT:
         print(recv)
         if recv[0:3] != '250':
             raise Exception('250 reply not received from server.')
+#--------------------------------------------------------------------------
+
+        
 
     def send_rcpt_cmd(self):
-        # Send RCPT TO command and print server response.
-        recipentNum = 0
-        self.sendMethod = input("Enter sendmethod [0:normal][1:CC][2:Bcc]: ")
-        if self.sendMethod == "1" or self.sendMethod == "2":
-            recipentNum = input("Enter number of recipents: ")
-            for i in range(1,int(recipentNum)+1):
-                recipient = input(f"Enter recipent {i}: ")
-                self.recipientList.append(recipient)
-                rcptToCmd = "RCPT TO: {}\r\n".format(recipient)
-                self.clientSocket.send(rcptToCmd.encode())
-                recv = self.clientSocket.recv(1024).decode()
-                print(recv)
-                if recv[0:3] != '250':
-                    raise Exception('250 reply not received from server.')
-        elif self.sendMethod == "0":
-            recipient = input(f"Enter recipent: ")
-            self.recipientList.append(recipient)
-            rcptToCmd = "RCPT TO: {}\r\n".format(recipient)
+    # Send RCPT TO command and print server response.
+        recipientNum = 0
+        #TO
+        # self.to_recipient = input("Enter recipent: ")
+        self.to_recipient = "codingAkerman@fit.hcmus.edu.vn"
+        rcptToCmd = "RCPT TO: {}\r\n".format(self.to_recipient)
+        self.clientSocket.send(rcptToCmd.encode())
+        recv = self.clientSocket.recv(1024).decode()
+        print(recv)
+        if recv[0:3] != '250':
+            raise Exception('250 reply not received from server.')
+        
+        #CC LIST
+        #cc_recipient = input("Enter recipent (hit 0 to stop): ")
+        cc_recipient = "0"
+
+        while cc_recipient != "0":
+            self.cc_list.append(cc_recipient)
+            #send data
+            rcptToCmd = "RCPT TO: {}\r\n".format(cc_recipient)
             self.clientSocket.send(rcptToCmd.encode())
             recv = self.clientSocket.recv(1024).decode()
             print(recv)
             if recv[0:3] != '250':
                 raise Exception('250 reply not received from server.')
+            cc_recipient = input("Enter recipent (hit 0 to stop): ")
 
-        else:
-            raise Exception('Invalid input. Stop program')
-        
+        #BCC LIST
+        # bcc_recipient = input("Enter recipent (hit 0 to stop): ")
+        bcc_recipient = "0"
+        while bcc_recipient != "0":
+            self.bcc_list.append(bcc_recipient)
+            #send data
+            rcptToCmd = "RCPT TO: {}\r\n".format(bcc_recipient)
+            self.clientSocket.send(rcptToCmd.encode())
+            recv = self.clientSocket.recv(1024).decode()
+            print(recv)
+            if recv[0:3] != '250':
+                raise Exception('250 reply not received from server.')
+            bcc_recipient = input("Enter recipent (hit 0 to stop): ")
+
+
+
+
+#----------------------------------------------------------------
     def send_data_cmd(self):
         dataCmd = "DATA\r\n"
         self.clientSocket.send(dataCmd.encode())
@@ -80,35 +115,58 @@ class SMTPCLIENT:
         if recv[0:3] != '354':
             raise Exception('354 reply not received from server.')
         
-        #header information: FROM, TO, DATE, SUBJECT
-        
-        fromInfo = "From: <{}>\r\n".format(self.userEmail)
 
+        cc_list_str = ", ".join(self.cc_list)
+        bcc_list_str = ", ".join(self.bcc_list)
 
-        # toInfo= "To: <{}>\r\n".format(clientMail)
-        toInfo  = myFunction.toInfoProccess(self.sendMethod,self.recipientList)
+        dateInfo = myFunction.getTime()
+        #subjectInfo = input("Enter Subject : ")
 
-        dateInfo = "Date: " + myFunction.getTime() + "\r\n"
-        subjectInfo = "Subject: {}\r\n".format(input("Enter Subject : "))
-        headerInfo = fromInfo + toInfo + dateInfo + subjectInfo
-        #  mail content
-        mailContent = "Content: \r\n" +  input ("Enter mail content : ")
+        # mailContent =  input ("Enter mail content : ")
 
+        # file_content_type = input("Enter file content type (text/plain | application/pdf): ")
 
-        # Message ends with a single period.
-        dataSend =  headerInfo  +mailContent + "\r\n.\r\n"
-        print("------------------------dataSend = ",dataSend)
-        self.clientSocket.send(dataSend.encode())
+        msg = MIMEMultipart()
+        msg['Date'] = dateInfo
+        msg['From'] = self.userEmail
+        msg['To'] = self.to_recipient
+        msg['Subject'] = "MIME test with 2 file time  "+ input ("MIME test Number: ")
+        # Add body to email
+        body = input("Enter mail content : ")
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Attach file------------------------------------------------------
+        file_name = input("Enter file name to attach (hit 0 to stop): ")
+        while file_name != "0":
+            file_path = os.path.join(os.path.dirname(__file__), '..','test-attachment', '{}'.format(file_name))
+            attachment = open(file_path, 'rb')
+
+            body_part = MIMEBase('application', 'octet-stream')
+            body_part.set_payload(attachment.read())
+            encoders.encode_base64(body_part)
+            # part = base64.b64encode(part)
+            body_part.add_header('Content-Disposition', f'attachment; filename= {file_name}')
+            msg.attach(body_part)
+            file_name = input("Enter file name to attach (hit 0 to stop): ")
+            
+
+        # send msg
+        final_data = msg.as_string()
+        self.clientSocket.send(final_data.encode() + '.\r\n'.encode())
         recv = self.clientSocket.recv(1024).decode()
         print(recv)
+
         if recv[0:3] != '250':
             raise Exception('250 reply not received from server.')
-        
+
+
+
+
 
     def send_quit_cmd(self):
         # Send QUIT command and get server response.
-        dataCmd = "QUIT\r\n"
-        self.clientSocket.send(dataCmd.encode())
+        quitCmd = "QUIT\r\n"
+        self.clientSocket.send(quitCmd.encode())
         recv = self.clientSocket.recv(1024).decode()
         print(recv)
         if recv[0:3] != '221':
@@ -144,11 +202,14 @@ try:
     client.send_rcpt_cmd()
     # Send DATA command and print server response.
     client.send_data_cmd()
-    
 
+    # Send QUIT command and print server response.
+    client.send_quit_cmd()
 
 except Exception as e:
     print("Error occurred: ",e)
+    print(traceback.format_exc())
 
 finally:
-    client.send_quit_cmd()
+    clientSocket.close()
+    print("Socket closed")

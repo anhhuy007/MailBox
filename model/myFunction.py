@@ -2,8 +2,8 @@
 import socket
 import datetime
 import json
-
-
+import email
+import base64
 #smtp file
 
 def getTime():
@@ -39,42 +39,67 @@ def getFileName(timeInfo):
 
 
 
-def saveMail(mailData,userEmail):
+def save_mail(in_data, user_email):
     try:
-        
+        file_list = []
+        attach = {}
         # mail to pypthon dictionary
-
-        # mailData =  "+OK 176\r\nFrom: <codingAkerman@fit.hcmus.edu.vn>\r\nSendMethod: 1\r\nTo: \r\nmail1@gmail.com\r\nmail2@gmail.com\r\nDate: 17:48:51 25/11/2023\r\nSubject: test standard format 1\r\nContent: \r\noijojojoi\r\n.\r\n"
+        parsed_email = email.message_from_string(in_data)
         dataDict = {}
-        startList = 0
-        endList = 0
-        dataDict["usermail"] = userEmail
-        mailData = mailData.split("\r\n")
-        
-        for i in range (0,len(mailData)):
-            if "from" in mailData[i].lower():
-                dataDict["from"] = mailData[i].split(" ",1)[1]
-            if "sendmethod" in mailData[i].lower():
-                dataDict["sendmethod"] = mailData[i].split(" ",1)[1]
-                startList = i + 2
-            if "date" in mailData[i].lower():
-                dataDict["date"] = mailData[i].split(" ",1)[1]
-                dateInfo = dataDict["date"]
-                endList = i
-            if "subject" in mailData[i].lower():
-                dataDict["subject"] = mailData[i].split(" ",1)[1]           
-            if "content" in mailData[i].lower():
-                dataDict["content"] = mailData[i+1]
+        dataDict["user_email"] = user_email
+        dateInfo = parsed_email['Date']
+        dataDict["Date"] = parsed_email['Date']
+        dataDict["From"] = parsed_email['From']
+        dataDict["To"] = parsed_email['To']
+        dataDict["Cc"] = parsed_email['Cc']
+        dataDict["Bcc"] = parsed_email['Bcc']
+        dataDict["Subject"] = parsed_email['Subject']
 
-        dataDict["recipientlist"] = mailData[startList:endList]
+         # SAVE FILE
+        for part in parsed_email.walk():
+            if part.get_content_type() == 'text/plain':
+                print(f"body content : {part.get_payload()}")
+                dataDict["body"] = part.get_payload()
+            #attach file
+            elif part.get_content_type() == 'application/octet-stream':
+                file_name = part.get_filename()
+                attach["name"] = file_name
+                file_type = file_name[file_name.find("."):]
+                attach["type"] = file_type
+
+                print(f"attachment name : {file_name}")
+                
+                if file_type == ".pdf" or file_type == ".jpeg" or file_type == ".png" or file_type == ".docx" or file_type == ".zip" :
+                    file_content = part.get_payload(decode=True)
+                    file_content_str = base64.b64encode(file_content).decode()  # Convert bytes to base64 string, b64 decode to use
+                    attach["content"] = file_content_str
+                    file_list.append(attach.copy()) # the copy() method returns a shallow copy of the dictionary.
+                    attach.clear()
+                    # with open(save_file_path, 'wb') as f:
+                    #     f.write(file_content)
+                    # print(f"--------------PDF file {file_name} saved.------------")
+                if file_type == ".txt":
+                    file_content = part.get_payload(decode=False)
+                    file_content = file_content.encode()
+                    file_content = base64.b64decode(file_content)
+                    file_content = file_content.decode()
+                    attach["content"] = file_content
+                    file_list.append(attach.copy())
+                    attach.clear()
+                    # with open(save_file_path, 'w') as f:
+                    #     f.write(file_content)
+
+        dataDict["file_num"] = len(file_list)
+        dataDict["file_list"] = file_list
         dataDict["seen"] = 0
+        dataDict["file_saved"] = 0
 
-        print(json.dumps(dataDict,indent= 6))
+        # print(json.dumps(dataDict,indent= 6))
 
 
         # save File
-        fileName = "mailBox\\"+ getFileName(dateInfo)+ ".json"
-        outputFile = open(fileName,"a",encoding='utf-8')
+        save_mail_path = "mailBox\\"+ getFileName(dateInfo)+ ".json"
+        outputFile = open(save_mail_path,"w")
         
         json.dump(dataDict,outputFile,indent= 6)
         outputFile.close()

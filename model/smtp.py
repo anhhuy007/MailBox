@@ -15,7 +15,6 @@ from email import encoders
 
 class SMTPCLIENT:
     
-    recipientList = []
     to_recipient = []
     cc_list = []
     bcc_list = []
@@ -75,9 +74,7 @@ class SMTPCLIENT:
             raise Exception('250 reply not received from server.')
         
         #CC LIST
-        #cc_recipient = input("Enter recipent (hit 0 to stop): ")
-        cc_recipient = "0"
-
+        cc_recipient = input("Enter CC: (hit 0 to stop): ")
         while cc_recipient != "0":
             self.cc_list.append(cc_recipient)
             #send data
@@ -87,11 +84,11 @@ class SMTPCLIENT:
             print(recv)
             if recv[0:3] != '250':
                 raise Exception('250 reply not received from server.')
-            cc_recipient = input("Enter recipent (hit 0 to stop): ")
+            cc_recipient = input("Enter CC (hit 0 to stop): ")
 
         #BCC LIST
-        # bcc_recipient = input("Enter recipent (hit 0 to stop): ")
-        bcc_recipient = "0"
+        bcc_recipient = input("Enter Bcc (hit 0 to stop): ")
+        # bcc_recipient = "0"
         while bcc_recipient != "0":
             self.bcc_list.append(bcc_recipient)
             #send data
@@ -101,7 +98,7 @@ class SMTPCLIENT:
             print(recv)
             if recv[0:3] != '250':
                 raise Exception('250 reply not received from server.')
-            bcc_recipient = input("Enter recipent (hit 0 to stop): ")
+            bcc_recipient = input("Enter Bcc (hit 0 to stop): ")
 
 
 
@@ -115,7 +112,6 @@ class SMTPCLIENT:
         if recv[0:3] != '354':
             raise Exception('354 reply not received from server.')
         
-
         cc_list_str = ", ".join(self.cc_list)
         bcc_list_str = ", ".join(self.bcc_list)
 
@@ -130,6 +126,8 @@ class SMTPCLIENT:
         msg['Date'] = dateInfo
         msg['From'] = self.userEmail
         msg['To'] = self.to_recipient
+        msg['Cc'] = cc_list_str
+        msg['Bcc'] = bcc_list_str
         msg['Subject'] = "MIME test with 2 file time  "+ input ("MIME test Number: ")
         # Add body to email
         body = input("Enter mail content : ")
@@ -147,6 +145,7 @@ class SMTPCLIENT:
             # part = base64.b64encode(part)
             body_part.add_header('Content-Disposition', f'attachment; filename= {file_name}')
             msg.attach(body_part)
+            attachment.close()
             file_name = input("Enter file name to attach (hit 0 to stop): ")
             
 
@@ -158,9 +157,6 @@ class SMTPCLIENT:
 
         if recv[0:3] != '250':
             raise Exception('250 reply not received from server.')
-
-
-
 
 
     def send_quit_cmd(self):

@@ -80,46 +80,18 @@ class POP3CLIENT:
             except socket.timeout:
                 break
 
+        # cut server reply
         in_data = in_data.decode()
         cut_server_reply = in_data.find('Content-Type:')
-        print ("cutserverreply: ",cut_server_reply)
         in_data = in_data[cut_server_reply:]
         print(f"================================================\n{in_data}")
 
+        # save mail
+        if(myFunction.save_mail(in_data, self.userEmail)):
+            print("Save mail success")
+        else:
+            print("Save mail fail")
 
-        parsed_email = email.message_from_string(in_data)
-
-        # Display email headers
-        print(f"Date: { parsed_email['Date']}")
-        print(f"From: {parsed_email['From']}", )
-        print(f"To: {parsed_email['To']}" )
-        print(f"Subject: {parsed_email['Subject']}")
-
-        # Display email body
-        # SAVE FILE
-        for part in parsed_email.walk():
-            if part.get_content_type() == 'text/plain':
-                print(f"body content : {part.get_payload()}")
-            #attach file
-            elif part.get_content_type() == 'application/octet-stream':
-                file_name = part.get_filename()
-                file_type = file_name[file_name.find("."):]
-                print(f"attachment name : {file_name}")
-                save_file_path = os.path.join(os.path.dirname(__file__), '..','dest-attachment', '{}'.format(file_name))
-
-
-                if file_type == ".pdf" or file_type == ".jpeg" or file_type == ".png" or file_type == ".docx" or file_type == ".zip" :
-                    file_content = part.get_payload(decode=True)
-                    with open(save_file_path, 'wb') as f:
-                        f.write(file_content)
-                    print(f"--------------PDF file {file_name} saved.------------")
-                if file_type == ".txt":
-                    file_content = part.get_payload(decode=False)
-                    file_content = file_content.encode()
-                    file_content = base64.b64decode(file_content)
-                    file_content = file_content.decode()
-                    with open(save_file_path, 'w') as f:
-                        f.write(file_content)
 
 
 

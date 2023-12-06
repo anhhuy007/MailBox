@@ -1,5 +1,9 @@
 import flet as ft
 
+
+#import error right here, fix this
+from model import smtp
+
 def MailComposeView():
     class MailComposeView(ft.BottomSheet):
 
@@ -25,6 +29,9 @@ def MailComposeView():
             if self.check_valid_info():
                 # send email here
                 print("OK data")
+                client = smtp.SMTPCLIENT(self.to, self.cc,
+                                     self.bcc, self.title, self.content)
+                client.send_mail()
 
         def __init__(self):
             super().__init__()

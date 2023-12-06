@@ -93,6 +93,7 @@ class LoginScreen(UserControl):
 
 
 def main(page: Page):
+    page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 0
     page.window_resizable = False
     page.vertical_alignment = ft.alignment.center

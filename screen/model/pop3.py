@@ -86,13 +86,20 @@ class POP3CLIENT:
         in_data = in_data[cut_server_reply:]
         print(f"================================================\n{in_data}")
 
+        parsed_email = email.message_from_string(in_data)
+        dateInfo = parsed_email['Date']
+        
         # save mail
-        if(myFunction.save_mail(in_data, self.userEmail)):
+        if(myFunction.save_mail(parsed_email, self.userEmail)):
             print("Save mail success")
         else:
             print("Save mail fail")
 
-
+        if(input("Do you want to save attach file in this mail ? (y/n) : ").lower() == "y"):
+            if(myFunction.save_attach("mailBox\\"+ myFunction.getFileName(dateInfo) + ".json")):
+                print("Save attach success")
+            else:
+                print("Save attach fail")
 
 
     def send_quit_cmd(self):
@@ -122,10 +129,7 @@ try:
     # LIST
     client.send_list_cmd()
     # RETR
-    
     client.send_retr_cmd()
-    
-
     # QUIT
     client.send_quit_cmd()
 except Exception as e:

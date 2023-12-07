@@ -1,6 +1,5 @@
 import flet as ft
 
-
 #import error right here, fix this
 from model import smtp
 
@@ -14,11 +13,11 @@ def MailComposeView():
         def check_valid_info(self):
             print("Value: ", self.textfield_title.value)
 
-            self.to = str(self.textfield_to.value).replace(" ", "")
-            self.cc = str(self.textfield_cc.value).replace(" ", "")
-            self.bcc = str(self.textfield_bcc.value).replace(" ", "")
-            self.title = str(self.textfield_title.value).replace(" ", "")
-            self.content = str(self.textfield_content.value).replace(" ", "")
+            self.to = str(self.textfield_to.value)
+            self.cc = str(self.textfield_cc.value)
+            self.bcc = str(self.textfield_bcc.value)
+            self.title = str(self.textfield_title.value)
+            self.content = str(self.textfield_content.value)
 
             if self.title == "":
                 self.title = "No title"
@@ -29,8 +28,9 @@ def MailComposeView():
             if self.check_valid_info():
                 # send email here
                 print("OK data")
-                client = smtp.SMTPCLIENT(self.to, self.cc,
-                                     self.bcc, self.title, self.content)
+                client = smtp.SMTPCLIENT("codingAkerman@fit.hcmus.edu.vn",self.to, self.cc,
+                                     self.bcc, self.title, self.content,"txtattach.txt")
+                
                 client.send_mail()
 
         def __init__(self):

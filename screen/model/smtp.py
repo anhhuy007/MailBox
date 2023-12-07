@@ -1,10 +1,10 @@
 import socket
 import datetime
-import myFunction
 import os
 import base64
 import traceback
 
+from model import myFunction
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -20,8 +20,7 @@ class SMTPCLIENT:
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     sendMethod = 0
-    def __init__(self, userEmail,
-                to_recipient  , cc_list,bcc_list,subject,body, attachment_list ):
+    def __init__(self, userEmail, to_recipient, cc_list, bcc_list, subject, body, attachment_list):
 
         self.userEmail = userEmail      #mail from login
         self.to_recipient = to_recipient
@@ -59,8 +58,6 @@ class SMTPCLIENT:
         if recv[0:3] != '250':
             raise Exception('250 reply not received from server.')
 #--------------------------------------------------------------------------
-
-        
 
     def send_rcpt_cmd(self):
     # Send RCPT TO command and print server response.
@@ -192,7 +189,7 @@ clientMail = "codingAkerman@fit.hcmus.edu.vn"
 
 # Create socket called clientSocket and establish a TCP connection with mailserver
 
-client = SMTPCLIENT(clientMail,"codingAkerman@fit.hcmus.edu.vn",
-                "","",
-                "test new mail " + input("Number:"), "2 txt file","txtattach.txt, txtattach2.txt")
-client.send_mail()
+# client = SMTPCLIENT(clientMail,"codingAkerman@fit.hcmus.edu.vn",
+#                 "","",
+#                 "test new mail " + input("Number:"), "2 txt file","txtattach.txt, txtattach2.txt")
+# client.send_mail()

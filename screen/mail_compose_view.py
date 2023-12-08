@@ -1,7 +1,12 @@
 import flet as ft
 
 #import error right here, fix this
-from model import smtp
+# from model import smtp
+import sys
+# Add a directory to sys.path
+sys.path.append('D:\\MMTseminar2\\MailBox\\screen\\model\\')
+import smtp
+
 
 def MailComposeView():
     class MailComposeView(ft.BottomSheet):
@@ -28,7 +33,7 @@ def MailComposeView():
             if self.check_valid_info():
                 # send email here
                 print("OK data")
-                client = smtp.SMTPCLIENT("codingAkerman@fit.hcmus.edu.vn",self.to, self.cc,
+                client = smtp.SMTPCLIENT("mail1@gmail.com",self.to, self.cc,
                                      self.bcc, self.title, self.content,"txtattach.txt")
                 
                 client.send_mail()

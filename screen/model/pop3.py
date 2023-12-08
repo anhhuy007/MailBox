@@ -7,20 +7,22 @@ import os
 import random
 
 class POP3CLIENT:
-    
-    mailNum : 0
-    def __init__(self,server,port,addr,userEmail,password,clientSocket):
-        self.server = server
-        self.port = port
-        self.addr = addr
+    port = 3335
+    server = "127.0.0.1"
+    serverAddr = (server,port)
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # userEmail = "codingAkerman@fit.hcmus.edu.vn"
+
+    mail_curr_index = 0
+    mail_prev_index = 0
+    def __init__(self,userEmail,password):
         self.userEmail = userEmail
         self.password = password
-        self.clientSocket = clientSocket
     
     def connect_server(self):
         
         print("Establist contact to pop3 server {} at port {}".format(self.server,self.port))
-        self.clientSocket.connect(self.addr)
+        self.clientSocket.connect(self.serverAddr)
         #check connect fail
         recv = self.clientSocket.recv(1024).decode()
         print(recv)
@@ -52,6 +54,26 @@ class POP3CLIENT:
         print(recv)
         if recv[0:3].lower() == '-err':
             raise Exception ('Negative response from server. Stop program')
+        self.mail_curr_index = recv.split(" ")[1]
+        print("----------Mail current index: ", self.mail_curr_index)
+
+        index_dict = {}
+        index_dict["mail_index"] = self.mail_curr_index
+        index_dict["user_email"] = self.userEmail
+
+        #open file
+        file_path = os.path.join(os.path.dirname(__file__), '..','..','mailBox', 'mailbox_info.json')
+        open_file = open(file_path, "r+")
+        #read prev index
+        data = json.load(open_file)
+        self.mail_prev_index = data["mail_index"]
+        print("----------Mail prev index: ", self.mail_prev_index)
+        #write new index
+        open_file.seek(0) # go to the beginning of the file
+        json.dump(index_dict, open_file, indent= 6 )
+        # Truncate the file to remove any remaining content
+        open_file.truncate()
+        open_file.close()
 
     def send_list_cmd(self):
         listCmd = "LIST\r\n"
@@ -62,44 +84,43 @@ class POP3CLIENT:
             raise Exception('Negative response from server. Stop program')
 
 
-    def send_retr_cmd(self):    
-        retrCmd = "RETR {}\r\n".format(input("Enter mail your want to read : "))
-        self.clientSocket.send(retrCmd.encode())
-
-
-        in_data = b''
-        self.clientSocket.settimeout(1)  
-        while True:
-            try:
-                recv = self.clientSocket.recv(4096)
-                if recv[0:4].lower() == '-err':
-                    raise Exception('Negative response from server. Stop program')
-                if not recv:
+    def send_retr_cmd(self):
+        for index in range(int(self.mail_prev_index)+1, int(self.mail_curr_index)+1):    
+            retrCmd = "RETR {}\r\n".format(index)
+            self.clientSocket.send(retrCmd.encode())
+            in_data = b''
+            self.clientSocket.settimeout(1)  
+            while True:
+                try:
+                    recv = self.clientSocket.recv(4096)
+                    if recv[0:4].lower() == '-err':
+                        raise Exception('Negative response from server. Stop program')
+                    if not recv:
+                        break
+                    in_data += recv
+                except socket.timeout:
                     break
-                in_data += recv
-            except socket.timeout:
-                break
 
-        # cut server reply
-        in_data = in_data.decode()
-        cut_server_reply = in_data.find('Content-Type:')
-        in_data = in_data[cut_server_reply:]
-        print(f"================================================\n{in_data}")
+            # cut server reply
+            in_data = in_data.decode()
+            cut_server_reply = in_data.find('Content-Type:')
+            in_data = in_data[cut_server_reply:]
+            print(f"================================================\n{in_data}")
 
-        parsed_email = email.message_from_string(in_data)
-        dateInfo = parsed_email['Date']
-        
-        # save mail
-        if(myFunction.save_mail(parsed_email, self.userEmail)):
-            print("Save mail success")
-        else:
-            print("Save mail fail")
-
-        if(input("Do you want to save attach file in this mail ? (y/n) : ").lower() == "y"):
-            if(myFunction.save_attach("mailBox\\"+ myFunction.getFileName(dateInfo) + ".json")):
-                print("Save attach success")
+            parsed_email = email.message_from_string(in_data)
+            dateInfo = parsed_email['date']
+            
+            # save mail
+            if(myFunction.save_mail(parsed_email, self.userEmail)):
+                print("Save mail success")
             else:
-                print("Save attach fail")
+                print("Save mail fail")
+
+            # if(input("Do you want to save attach file in this mail ? (y/n) : ").lower() == "y"):
+            #     if(myFunction.save_attach("mailBox\\"+ myFunction.getFileName(dateInfo) + ".json")):
+            #         print("Save attach success")
+            #     else:
+            #         print("Save attach fail")
 
 
     def send_quit_cmd(self):
@@ -108,33 +129,35 @@ class POP3CLIENT:
         self.clientSocket.send(quitCmd.encode())
         print("Close connection")
 
+
+    def run_pop3(self):
+        try:
+            #Connect server
+            self.connect_server()
+            # USER
+            self.send_user_cmd()
+            # PASS
+            self.send_pass_cmd()
+            # STAT
+            self.send_stat_cmd()
+            # LIST
+            self.send_list_cmd()
+            # RETR
+            self.send_retr_cmd()
+            # QUIT
+            self.send_quit_cmd()
+        except Exception as e:
+            print("Error occurred: ",e)
+        finally:
+            self.clientSocket.close()
+            print ("close server")
 #========================================================================
 pop3Port = 3335
 pop3Sever = "127.0.0.1"
 pop3Addr = (pop3Sever,pop3Port)
-userEmail = "codingAkerman@fit.hcmus.edu.vn"
+userEmail = "mail1@gmail.com"
 userPass = "123"
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-try:
-    client = POP3CLIENT(pop3Sever,pop3Port,pop3Addr,userEmail,userPass,clientSocket)
-    #Connect server
-    client.connect_server()
-    # USER
-    client.send_user_cmd()
-    # PASS
-    client.send_pass_cmd()
-    # STAT
-    client.send_stat_cmd()
-    # LIST
-    client.send_list_cmd()
-    # RETR
-    client.send_retr_cmd()
-    # QUIT
-    client.send_quit_cmd()
-except Exception as e:
-    print("Error occurred: ",e)
-finally:
-    clientSocket.close()
-    print ("close server")
+pop3Client = POP3CLIENT(userEmail,userPass)
+pop3Client.run_pop3()
 

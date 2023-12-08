@@ -1,19 +1,19 @@
-Content-Type: multipart/mixed; boundary="===============4493833881372702931=="
+Content-Type: multipart/mixed; boundary="===============8460942959660832381=="
 MIME-Version: 1.0
-Date: 09:18:01 07/12/2023
-From: codingAkerman@fit.hcmus.edu.vn
-To: codingAkerman@fit.hcmus.edu.vn
-Cc: 
-Bcc: 
-Subject: test new mail 1
+date: 08:52:00 08/12/2023
+from: mail1@gmail.com
+to: mail1@gmail.com
+cc: 
+bcc: 
+subject: 123456
 
---===============4493833881372702931==
+--===============8460942959660832381==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-2 txt file
---===============4493833881372702931==
+123456
+--===============8460942959660832381==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -39,16 +39,4 @@ xrDhu6NjIHBow6F0IHRyaeG7g24gdG/DoG4gZGnhu4duIGLhuqNuIHRow6JuIHThu6sgY8OhYyB0
 cuG6o2kgbmdoaeG7h20gaOG7jWMgdGh14bqtdCwgbmdoacOqbiBj4bupdSBraG9hIGjhu41jLCB0
 aOG7sWMgaMOgbmgsIHRo4buxYyB04bq/ICB04bqhaSBkb2FuaCBuZ2hp4buHcA==
 
---===============4493833881372702931==
-Content-Type: application/octet-stream
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename= txtattach2.txt
-
-QmFieSwgSSdtIGRhbmNpbmcgaW4gdGhlIGRhcmsNCldpdGggeW91IGJldHdlZW4gbXkgYXJtcw0K
-QmFyZWZvb3Qgb24gdGhlIGdyYXNzDQpMaXN0ZW5pbmcgdG8gb3VyIGZhdm91cml0ZSBzb25nDQpX
-aGVuIHlvdSBzYWlkIHlvdSBsb29rZWQgYSBtZXNzDQpJIHdoaXNwZXJlZCB1bmRlcm5lYXRoIG15
-IGJyZWF0aA0KQnV0IHlvdSBoZWFyZCBpdA0KRGFybGluZywgeW91IGxvb2sgcGVyZmVjdCB0b25p
-Z2h0
-
---===============4493833881372702931==--
+--===============8460942959660832381==--

@@ -4,7 +4,7 @@ import os
 import base64
 import traceback
 
-from model import myFunction
+import myFunction
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -19,7 +19,6 @@ class SMTPCLIENT:
     clientAddr = "127.0.0.1"
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    sendMethod = 0
     def __init__(self, userEmail, to_recipient, cc_list, bcc_list, subject, body, attachment_list):
 
         self.userEmail = userEmail      #mail from login
@@ -105,12 +104,12 @@ class SMTPCLIENT:
 
         dateInfo = myFunction.getTime()
         msg = MIMEMultipart()
-        msg['Date'] = dateInfo
-        msg['From'] = self.userEmail
-        msg['To'] = self.to_recipient
-        msg['Cc'] = ', '.join(self.cc_list)
-        msg['Bcc'] = ', '.join(self.bcc_list)
-        msg['Subject'] = self.subject
+        msg['date'] = dateInfo
+        msg['from'] = self.userEmail
+        msg['to'] = self.to_recipient
+        msg['cc'] = ', '.join(self.cc_list)
+        msg['bcc'] = ', '.join(self.bcc_list)
+        msg['subject'] = self.subject
         # Add body to email
         msg.attach(MIMEText(self.body, 'plain'))
 
@@ -120,15 +119,16 @@ class SMTPCLIENT:
             for attachment in self.attachment_list:
                 file_name = attachment
                 file_path = os.path.join(os.path.dirname(__file__), '..','..','test-attachment', '{}'.format(file_name))
-                attachment = open(file_path, 'rb')
+                if (os.path.isfile(file_path)):
+                    attachment = open(file_path, 'rb')
 
-                body_part = MIMEBase('application', 'octet-stream')
-                body_part.set_payload(attachment.read())
-                encoders.encode_base64(body_part)
-                # part = base64.b64encode(part)
-                body_part.add_header('Content-Disposition', f'attachment; filename= {file_name}')
-                msg.attach(body_part)
-                attachment.close()            
+                    body_part = MIMEBase('application', 'octet-stream')
+                    body_part.set_payload(attachment.read())
+                    encoders.encode_base64(body_part)
+                    # part = base64.b64encode(part)
+                    body_part.add_header('Content-Disposition', f'attachment; filename= {file_name}')
+                    msg.attach(body_part)
+                    attachment.close()            
 
         # send msg
         final_data = msg.as_string()
@@ -171,7 +171,7 @@ class SMTPCLIENT:
             print(traceback.format_exc())
 
         finally:
-            
+            self.clientSocket.close()
             print("Socket closed")
 
 #===========================================================================
@@ -191,5 +191,5 @@ clientMail = "codingAkerman@fit.hcmus.edu.vn"
 
 # client = SMTPCLIENT(clientMail,"codingAkerman@fit.hcmus.edu.vn",
 #                 "","",
-#                 "test new mail " + input("Number:"), "2 txt file","txtattach.txt, txtattach2.txt")
+#                 input("Enter subject:"),input("Enter body: "),"txtattach2.txt")
 # client.send_mail()

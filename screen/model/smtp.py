@@ -39,7 +39,7 @@ class SMTPCLIENT:
         print(recv)
         if recv[0:3] != '220':
              raise Exception('220 reply not received from server. Stop program')
-    
+
     def send_helo_cmd(self):
             # Send HELO command and print server response.
         heloCmd = "HELO [{}]\r\n".format(self.clientAddr)
@@ -48,7 +48,7 @@ class SMTPCLIENT:
         print(recv)
         if recv[0:3] != '250':
             raise Exception('250 reply not received from server.')
-    
+
     def send_mailfrom_cmd(self):
         # Send MAIL FROM command and print server response.
         mailFromCmd = "MAIL FROM: {}\r\n".format(self.userEmail)
@@ -69,7 +69,7 @@ class SMTPCLIENT:
         print(recv)
         if recv[0:3] != '250':
             raise Exception('250 reply not received from server.')
-        
+
         #CC LIST + bcc list
         self.cc_list = self.cc_list.split(", ")
         self.bcc_list = self.bcc_list.split(", ")
@@ -128,7 +128,7 @@ class SMTPCLIENT:
                 # part = base64.b64encode(part)
                 body_part.add_header('Content-Disposition', f'attachment; filename= {file_name}')
                 msg.attach(body_part)
-                attachment.close()            
+                attachment.close()
 
         # send msg
         final_data = msg.as_string()
@@ -171,9 +171,8 @@ class SMTPCLIENT:
             print(traceback.format_exc())
 
         finally:
-            
-            print("Socket closed")
 
+            print("Socket closed")
 #===========================================================================
 
 mailserver = "127.0.0.1"

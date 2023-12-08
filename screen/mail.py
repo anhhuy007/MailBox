@@ -2,6 +2,7 @@ import flet as ft
 import mail_content_view as MailContentView
 import mail_compose_view as MailComposeSheet
 
+
 class AppHeader(ft.UserControl):
     def build(self):
         self.iconTitle = ft.Row(
@@ -109,6 +110,7 @@ class Mail(ft.UserControl):
         self.page.overlay.remove(self.bs)
         await self.page.update_async()
 
+
 class InboxPage(ft.UserControl):
     def build(self):
         async def add_mail(self, mail):
@@ -164,7 +166,6 @@ class InboxPage(ft.UserControl):
                 ]
             )
         )
-
 
 
 def ComposeButton():

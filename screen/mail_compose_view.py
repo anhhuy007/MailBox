@@ -1,7 +1,6 @@
 import flet as ft
-
-#import error right here, fix this
 from model import smtp
+
 
 def MailComposeView():
     class MailComposeView(ft.BottomSheet):
@@ -13,33 +12,50 @@ def MailComposeView():
         def check_valid_info(self):
             print("Value: ", self.textfield_title.value)
 
-            self.to = str(self.textfield_to.value)
-            self.cc = str(self.textfield_cc.value)
-            self.bcc = str(self.textfield_bcc.value)
-            self.title = str(self.textfield_title.value)
-            self.content = str(self.textfield_content.value)
+            to_str = str(self.textfield_to.value)
+            cc_str = str(self.textfield_cc.value)
+            bcc_str = str(self.textfield_bcc.value)
+            title_str = str(self.textfield_title.value)
+            content_str = str(self.textfield_content.value)
 
-            if self.title == "":
-                self.title = "No title"
+            if title_str == "":
+                title_str = "No title"
 
-            return self.to != ""
+            return to_str != ""
 
         async def send_mail_clicked(self, e):
             if self.check_valid_info():
                 # send email here
                 print("OK data")
-                client = smtp.SMTPCLIENT("codingAkerman@fit.hcmus.edu.vn",self.to, self.cc,
-                                     self.bcc, self.title, self.content,"txtattach.txt")
-                
+                print(f"self.to: {self.textfield_title.value}")
+                print(f"self.to: {self.textfield_content.value}")
+                print(f"self.to: {self.textfield_to.value}")
+                print(f"self.to: {self.textfield_cc.value}")
+                print(f"self.to: {self.textfield_bcc.value}")
+
+
+                client = smtp.SMTPCLIENT(
+                    "codingAkerman@fit.hcmus.edu.vn",
+                    self.textfield_to.value,
+                    self.textfield_cc.value,
+                    self.textfield_bcc.value,
+                    self.textfield_title.value,
+                    self.textfield_content.value,
+                    "txtattach.txt"
+                )
+
                 client.send_mail()
+
+        async def did_mount_async(self):
+            await self.page.update_async()
+
+        # happens when example is removed from the page (when user chooses different control group on the navigation rail)
+        async def will_unmount_async(self):
+            await self.page.overlay.remove(self.content)
+            await self.page.update_async()
 
         def __init__(self):
             super().__init__()
-            self.to = ""
-            self.cc = ""
-            self.bcc = ""
-            self.title = ""
-            self.content = ""
 
             self.textfield_to = ft.TextField(
                 hint_text="To",

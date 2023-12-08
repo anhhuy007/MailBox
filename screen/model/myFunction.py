@@ -48,12 +48,12 @@ def save_mail(parsed_email, user_email):
 
         dataDict["user_email"] = user_email
         dateInfo = parsed_email['Date']
-        dataDict["Date"] = parsed_email['Date']
-        dataDict["From"] = parsed_email['From']
-        dataDict["To"] = parsed_email['To']
-        dataDict["Cc"] = parsed_email['Cc']
-        dataDict["Bcc"] = parsed_email['Bcc']
-        dataDict["Subject"] = parsed_email['Subject']
+        dataDict["date"] = parsed_email['Date']
+        dataDict["from"] = parsed_email['From']
+        dataDict["to"] = parsed_email['To']
+        dataDict["cc"] = parsed_email['Cc']
+        dataDict["bcc"] = parsed_email['Bcc']
+        dataDict["subject"] = parsed_email['Subject']
 
          # SAVE FILE
         for part in parsed_email.walk():

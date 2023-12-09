@@ -1,6 +1,6 @@
 import flet as ft
 import mail_content_view as MailContentView
-import mail_compose_view as MailComposeSheet
+import mail_compose_view
 
 
 class AppHeader(ft.UserControl):
@@ -170,12 +170,13 @@ class InboxPage(ft.UserControl):
 
 def ComposeButton():
     class ComposeButton(ft.FloatingActionButton):
+
         def __init__(self):
             super().__init__()
             self.icon = ft.icons.CREATE
             self.text = "Compose"
             self.on_click = self.show_bs
-            self.bs = MailComposeSheet.MailComposeView()
+            self.bs = mail_compose_view.MailComposeView()
 
         def bs_dismissed(self, e):
             print("Dismissed!")
@@ -220,9 +221,6 @@ class AppBody(ft.UserControl):
             page.content = pages[e.control.selected_index]
             print("Current page: ", e.control.selected_index)
             await self.update_async()
-
-        async def on_compose_click(self, e):
-            pass
 
         # navigation rail
         rail = ft.NavigationRail(

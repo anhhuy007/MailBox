@@ -3,7 +3,7 @@ from model import smtp
 
 
 def MailComposeView():
-    class MailComposeView(ft.BottomSheet):
+    class MailCompose_View(ft.BottomSheet):
 
         async def on_close(self, e):
             self.open = False
@@ -12,20 +12,11 @@ def MailComposeView():
         def check_valid_info(self):
             print("Value: ", self.textfield_title.value)
 
-            to_str = str(self.textfield_to.value)
-            cc_str = str(self.textfield_cc.value)
-            bcc_str = str(self.textfield_bcc.value)
-            title_str = str(self.textfield_title.value)
-            content_str = str(self.textfield_content.value)
-
-            if title_str == "":
-                title_str = "No title"
-
-            return to_str != ""
+            return self.textfield_to != ""
 
         async def send_mail_clicked(self, e):
             if self.check_valid_info():
-                # send email here
+                # check sent mail information
                 print("OK data")
                 print(f"self.to: {self.textfield_title.value}")
                 print(f"self.to: {self.textfield_content.value}")
@@ -33,7 +24,7 @@ def MailComposeView():
                 print(f"self.to: {self.textfield_cc.value}")
                 print(f"self.to: {self.textfield_bcc.value}")
 
-
+                # send email
                 client = smtp.SMTPCLIENT(
                     "codingAkerman@fit.hcmus.edu.vn",
                     self.textfield_to.value,
@@ -43,10 +34,34 @@ def MailComposeView():
                     self.textfield_content.value,
                     "txtattach.txt"
                 )
-
                 client.send_mail()
 
+                # clear mail information
+                self.textfield_title.value = ""
+                self.textfield_content.value = ""
+                self.textfield_cc.value = ""
+                self.textfield_bcc.value = ""
+                self.textfield_to.value = ""
+
+                await self.update_async()
+                await self.on_close(e)
+
+        async def on_click_event(self, e):
+            print("On pick files")
+            await self.pick_file_dialog.pick_files_async(allow_multiple=True)
+            await self.update_async()
+
+        async def pick_files_result(self, e):
+            print("On pick files result")
+            self.selected_files.value = (
+                ", ".join(map(lambda f: f.name, e.files)) if e.files else "Cancelled!"
+            )
+            print(f"Value: {self.selected_files.value}")
+            await self.selected_files.update_async()
+
         async def did_mount_async(self):
+            self.page.overlay.append(self.pick_file_dialog)
+            self.page.overlay.append(self.selected_files)
             await self.page.update_async()
 
         # happens when example is removed from the page (when user chooses different control group on the navigation rail)
@@ -94,6 +109,9 @@ def MailComposeView():
                 multiline=True,
                 max_length=1000
             )
+
+            self.pick_file_dialog = ft.FilePicker(on_result=self.pick_files_result)
+            self.selected_files = ft.Text(max_lines=1, width=300, overflow=ft.TextOverflow.ELLIPSIS)
 
             header = ft.Row(
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -167,9 +185,15 @@ def MailComposeView():
                             icon=ft.icons.SEND_ROUNDED,
                             on_click=self.send_mail_clicked
                         ),
-
                         ft.Container(
-                            content=ft.Icon(ft.icons.ATTACH_FILE)
+                            content=ft.Row([
+                                self.selected_files,
+                                ft.ElevatedButton(
+                                    "Pick files",
+                                    icon=ft.icons.UPLOAD_FILE,
+                                    on_click=self.on_click_event
+                                ),
+                            ])
                         )
                     ]
                 )
@@ -197,4 +221,4 @@ def MailComposeView():
                 )
             )
 
-    return MailComposeView()
+    return MailCompose_View()

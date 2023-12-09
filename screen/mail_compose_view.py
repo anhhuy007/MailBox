@@ -32,7 +32,7 @@ def MailComposeView():
                     self.textfield_bcc.value,
                     self.textfield_title.value,
                     self.textfield_content.value,
-                    "txtattach.txt"
+                    self.files_path
                 )
                 client.send_mail()
 
@@ -51,12 +51,25 @@ def MailComposeView():
             await self.pick_file_dialog.pick_files_async(allow_multiple=True)
             await self.update_async()
 
-        async def pick_files_result(self, e):
+        async def pick_files_result(self, e: ft.FilePickerResultEvent):
             print("On pick files result")
             self.selected_files.value = (
-                ", ".join(map(lambda f: f.name, e.files)) if e.files else "Cancelled!"
+                ", ".join(map(lambda f: f.name, e.files)) if e.files else "No attachment"
             )
-            print(f"Value: {self.selected_files.value}")
+            print(f"Files: {e.files}")
+
+            # clear previous files path
+            self.files_path = ""
+
+            # get files path
+            for file in e.files:
+                self.files_path += file.path + ", "
+
+            # remove last comma
+            self.files_path = self.files_path[:-2]
+
+            print(f"Files path: {self.files_path}")
+
             await self.selected_files.update_async()
 
         async def did_mount_async(self):
@@ -111,7 +124,11 @@ def MailComposeView():
             )
 
             self.pick_file_dialog = ft.FilePicker(on_result=self.pick_files_result)
-            self.selected_files = ft.Text(max_lines=1, width=300, overflow=ft.TextOverflow.ELLIPSIS)
+            self.selected_files = ft.Text(value="No attachment", max_lines=1, width=300,
+                                          overflow=ft.TextOverflow.ELLIPSIS, text_align=ft.TextAlign.RIGHT)
+
+            # array of files path
+            self.files_path = ""
 
             header = ft.Row(
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -186,14 +203,16 @@ def MailComposeView():
                             on_click=self.send_mail_clicked
                         ),
                         ft.Container(
-                            content=ft.Row([
-                                self.selected_files,
-                                ft.ElevatedButton(
-                                    "Pick files",
-                                    icon=ft.icons.UPLOAD_FILE,
-                                    on_click=self.on_click_event
-                                ),
-                            ])
+                            content=ft.Row(
+                                alignment=ft.MainAxisAlignment.END,
+                                controls=[
+                                    self.selected_files,
+                                    ft.ElevatedButton(
+                                        "Pick files",
+                                        icon=ft.icons.UPLOAD_FILE,
+                                        on_click=self.on_click_event
+                                    ),
+                                ])
                         )
                     ]
                 )

@@ -86,9 +86,9 @@ def save_mail(parsed_email, user_email):
         json.dump(dataDict,outputFile,indent= 6)
         outputFile.close()
 
-        # file_config_path= init_user_email_box(user_email)
-        # get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], file_config_path)
-        # move_mail()
+        file_config_path= init_user_email_box(user_email)
+        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], file_config_path)
+        move_mail(save_mail_path,folder_path)
 
     except Exception as e:
         print(f"Error occurred: {e}")
@@ -118,18 +118,23 @@ def save_attach(file_path):
 
 
 
-#----------------------------------------------------------
+#------------------------------------------------------------------------------------
 
 
 
 def init_user_email_box(user_name):
     user_folder = os.path.join("mailBox", user_name)
-    os.makedirs(user_folder)
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
+
+    
+    
     
     sub_folders = ["Important", "Project", "Work", "Spam","Others"]
     for folder in sub_folders:
         folder_path = os.path.join(user_folder, folder)
-        os.makedirs(folder_path)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
     filter_config_path = os.path.join(user_folder, 'config.json')
     json_content = {
@@ -157,6 +162,7 @@ def init_user_email_box(user_name):
         json.dump(json_content, json_file, indent=4)
 
     return filter_config_path
+
 
 def move_mail(mail, folder_name):
     mail_folder = os.path.join(folder_name, mail["subject"])

@@ -47,13 +47,13 @@ def save_mail(parsed_email, user_email):
         dataDict = {}
 
         dataDict["user_email"] = user_email
-        dateInfo = parsed_email['Date']
-        dataDict["date"] = parsed_email['Date']
-        dataDict["from"] = parsed_email['From']
-        dataDict["to"] = parsed_email['To']
-        dataDict["cc"] = parsed_email['Cc']
-        dataDict["bcc"] = parsed_email['Bcc']
-        dataDict["subject"] = parsed_email['Subject']
+        dateInfo = parsed_email['date']
+        dataDict["date"] = parsed_email['date']
+        dataDict["from"] = parsed_email['from']
+        dataDict["to"] = parsed_email['to']
+        dataDict["cc"] = parsed_email['cc']
+        dataDict["bcc"] = parsed_email['bcc']
+        dataDict["subject"] = parsed_email['subject']
 
          # SAVE FILE
         for part in parsed_email.walk():
@@ -81,16 +81,18 @@ def save_mail(parsed_email, user_email):
         dataDict["seen"] = 0
         dataDict["file_saved"] = 0
         # save File
-        save_mail_path = "mailBox\\"+ getFileName(dateInfo)+ ".json"
+        save_mail_path =  getFileName(dateInfo)+ ".json"
+        # print (save_mail_path + "====================================")
         outputFile = open(save_mail_path,"w")
         json.dump(dataDict,outputFile,indent= 6)
         outputFile.close()
-        filter(dataDict["Subject"], dataDict["From"], dataDict["body"], save_mail_path, user_email)
+
+        folder_name = filter_from_json(dataDict["subject"], dataDict["from"], dataDict["body"],  user_email + "/config.json")
+        move_mail_to_folder(user_email, folder_name, save_mail_path)
     except Exception as e:
         print(f"Error occurred: {e}")
         return False
     return True
-
 
 def save_attach(file_path):
     try:
@@ -118,31 +120,78 @@ def save_attach(file_path):
 
 
 #////////////////////////////////////////////////////////////////////////
-def create_folder(user_name, folder_name, file_path):
+def move_mail_to_folder(user_name, folder_name, json_file_email_path):
     try:
         folder_path = "mailBox/" + user_name + "/" + folder_name
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         
-        shutil.move(file_path, folder_path)
+        shutil.move(json_file_email_path, folder_path)
         return True
     except Exception as e:
         print(f"Error occurred: {e}")
         return False
-
-def filter(subject, sender, content, file_path, user_name):
-    if sender == "ahihi@testing.com" or sender == "ahuu@testing.com":
-        folder_name = "Project"
-    elif "urgent" in subject or "ASAP" in subject:
-        folder_name = "Important"
-    elif "report" in content or "meeting" in content:
-        folder_name = "Work"
-    elif "virus" in subject or "hack" in subject or "crack" in subject or "virus" in content or "hack" in content or "crack" in content:
-        folder_name = "Spam"
-    else:
-        return "Other"
     
-    if create_folder(user_name, folder_name, file_path):
-        return f"To folder: {folder_name}"
-    else:
-        return "Failed to create folder or move file" 
+def filter_from_json(subject, sender, body, json_file_path):
+    try:
+        with open(json_file_path, 'r') as json_file:
+            filters = json.load(json_file)
+    except FileNotFoundError:
+        return "Other"
+
+    folder_name = "Other"
+
+    for rule in filters.get("Filter", []):
+        conditions = []
+
+        if 'from' in rule:
+            conditions.append(sender.lower() in [from_address.lower() for from_address in rule['from']])
+
+        if 'subject' in rule:
+            conditions.append(any(keyword.lower() in subject.lower() for keyword in rule['subject']))
+
+        if 'content' in rule:
+            conditions.append(any(keyword.lower() in body.lower() for keyword in rule['content']))
+
+        if 'spam' in rule:
+            conditions.append(any(keyword.lower() in subject.lower() or keyword.lower() in body.lower() for keyword in rule['spam']))
+
+        if all(conditions):
+            folder_name = rule.get("to_folder", "Other")  # Chuyển folder_name về chữ thường
+            break
+
+    return folder_name
+
+def create_json_filter(user_mail):
+    user_folder_path = os.path.join('mailBox', user_mail)
+    if not os.path.exists(user_folder_path):
+        os.makedirs(user_folder_path)
+
+    json_file_path = os.path.join(user_folder_path, 'config.json')
+
+    if not os.path.exists(json_file_path):
+        json_content = {
+            "filter": [
+                {
+                    "from": ["ahihi@testing.com", "ahuu@testing.com"],
+                    "to_folder": "Project"
+                },
+                {
+                    "subject": ["urgent", "ASAP"],
+                    "to_folder": "Important"
+                },
+                {
+                    "content": ["report", "meeting"],
+                    "to_folder": "Work"
+                },
+                {
+                    "spam": ["virus", "hack", "crack"],
+                    "to_folder": "Spam"
+                }
+            ]
+        }
+
+        with open(json_file_path, 'w') as json_file:
+            json.dump(json_content, json_file, indent=4)
+
+    return json_file_path

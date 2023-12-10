@@ -81,3 +81,4 @@ print(list_str)
 
 print (len(list_str))
 
+# file_path = os.path.join(os.path.dirname(__file__), '..','..','test-attachment', '{}'.format(file_name))

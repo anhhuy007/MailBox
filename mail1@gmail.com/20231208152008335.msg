@@ -1,19 +1,19 @@
-Content-Type: multipart/mixed; boundary="===============8460942959660832381=="
+Content-Type: multipart/mixed; boundary="===============3252115738170765942=="
 MIME-Version: 1.0
-date: 08:52:00 08/12/2023
+date: 15:20:08 08/12/2023
 from: mail1@gmail.com
 to: mail1@gmail.com
 cc: 
 bcc: 
-subject: 123456
+subject: urgent, asap
 
---===============8460942959660832381==
+--===============3252115738170765942==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-123456
---===============8460942959660832381==
+dddddd
+--===============3252115738170765942==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -39,4 +39,4 @@ xrDhu6NjIHBow6F0IHRyaeG7g24gdG/DoG4gZGnhu4duIGLhuqNuIHRow6JuIHThu6sgY8OhYyB0
 cuG6o2kgbmdoaeG7h20gaOG7jWMgdGh14bqtdCwgbmdoacOqbiBj4bupdSBraG9hIGjhu41jLCB0
 aOG7sWMgaMOgbmgsIHRo4buxYyB04bq/ICB04bqhaSBkb2FuaCBuZ2hp4buHcA==
 
---===============8460942959660832381==--
+--===============3252115738170765942==--

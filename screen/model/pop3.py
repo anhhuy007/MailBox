@@ -85,8 +85,10 @@ class POP3CLIENT:
 
 
     def send_retr_cmd(self):
-        for index in range(int(self.mail_prev_index)+1, int(self.mail_curr_index)+1):    
-            retrCmd = "RETR {}\r\n".format(index)
+        # for index in range(int(self.mail_prev_index)+1, int(self.mail_curr_index)+1):    
+        for index in range(1,2):    
+            # retrCmd = "RETR {}\r\n".format(index)
+            retrCmd = "RETR {}\r\n".format(input("Enter mail index: "))
             self.clientSocket.send(retrCmd.encode())
             in_data = b''
             self.clientSocket.settimeout(1)  
@@ -111,6 +113,7 @@ class POP3CLIENT:
             dateInfo = parsed_email['date']
             
             # save mail
+            myFunction.create_json_filter(self.userEmail)
             if(myFunction.save_mail(parsed_email, self.userEmail)):
                 print("Save mail success")
             else:

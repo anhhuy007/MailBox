@@ -1,0 +1,33 @@
+{
+    "filter": [
+        {
+            "from": [
+                "ahihi@testing.com",
+                "ahuu@testing.com"
+            ],
+            "to_folder": "Project"
+        },
+        {
+            "subject": [
+                "urgent",
+                "ASAP"
+            ],
+            "to_folder": "Important"
+        },
+        {
+            "content": [
+                "report",
+                "meeting"
+            ],
+            "to_folder": "Work"
+        },
+        {
+            "spam": [
+                "virus",
+                "hack",
+                "crack"
+            ],
+            "to_folder": "Spam"
+        }
+    ]
+}

@@ -1,19 +1,19 @@
-Content-Type: multipart/mixed; boundary="===============1003660740942573343=="
+Content-Type: multipart/mixed; boundary="===============4310280757329947512=="
 MIME-Version: 1.0
-date: 21:46:55 07/12/2023
+date: 15:50:22 08/12/2023
 from: mail1@gmail.com
 to: mail1@gmail.com
 cc: 
 bcc: 
-subject: 123456
+subject: ASAP
 
---===============1003660740942573343==
+--===============4310280757329947512==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-123456
---===============1003660740942573343==
+VIRUS
+--===============4310280757329947512==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -39,4 +39,4 @@ xrDhu6NjIHBow6F0IHRyaeG7g24gdG/DoG4gZGnhu4duIGLhuqNuIHRow6JuIHThu6sgY8OhYyB0
 cuG6o2kgbmdoaeG7h20gaOG7jWMgdGh14bqtdCwgbmdoacOqbiBj4bupdSBraG9hIGjhu41jLCB0
 aOG7sWMgaMOgbmgsIHRo4buxYyB04bq/ICB04bqhaSBkb2FuaCBuZ2hp4buHcA==
 
---===============1003660740942573343==--
+--===============4310280757329947512==--

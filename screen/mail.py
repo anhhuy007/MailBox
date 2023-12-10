@@ -1,6 +1,14 @@
 import flet as ft
 import mail_content_view as MailContentView
-import mail_compose_view
+import mail_compose_view as MailComposeView
+from mail_content_view import MailInfo, FileAttachment
+import os
+
+
+def getDate(date):
+    # raw data: "21:46:55 07/12/2023"
+    # return: "07/12/2023"
+    return date[9:]
 
 
 class AppHeader(ft.UserControl):
@@ -21,6 +29,7 @@ class AppHeader(ft.UserControl):
 
         return ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
             width=1200,
             controls=[
                 self.iconTitle,
@@ -33,24 +42,31 @@ class AppHeader(ft.UserControl):
                     content_padding=10
                 ),
 
-                ft.CircleAvatar(
-                    foreground_image_url="https://sohanews.sohacdn.com/thumb_w/1000/160588918557773824/2021/9/14/photo1631588006082-16315880063578503538.jpg",
-                    content=ft.Text("User")
+                ft.Row(
+                    spacing=20,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.IconButton(
+                            icon=ft.icons.DOWNLOAD_ROUNDED,
+                            icon_size=30,
+
+                        ),
+                        ft.CircleAvatar(
+                            foreground_image_url="https://sohanews.sohacdn.com/thumb_w/1000/160588918557773824/2021/9/14/photo1631588006082-16315880063578503538.jpg",
+                            content=ft.Text("User")
+                        )
+                    ]
                 )
+
             ]
         )
 
 
 class Mail(ft.UserControl):
-
-    def __init__(self, sender: str, title: str, content: str, date: str):
+    def __init__(self, mail_info: MailInfo):
         super().__init__()
-        self.complete = False
-        self.sender = sender
-        self.title = title
-        self.content = content
-        self.date = date
-        self.bs = MailContentView.MailContentView(sender, "", title, date, content)
+        self.mail_info = mail_info
+        self.bs = MailContentView.MailContentView(self.mail_info)
         self.bs.open = False
 
     async def on_email_clicked(self, e):
@@ -71,28 +87,51 @@ class Mail(ft.UserControl):
                         controls=[
                             ft.Container(
                                 margin=ft.margin.only(left=15),
-                                content=ft.Checkbox(),
+                                content=ft.Checkbox(
+                                    value=self.mail_info.seen if self.mail_info.seen == 1 else False,
+                                    disabled=True
+                                ),
                                 width=10
                             ),
 
                             ft.Container(
                                 margin=ft.margin.only(left=50),
-                                content=ft.Text(self.sender, width=180),
+                                content=ft.Text(
+                                    value=self.mail_info.sender,
+                                    width=180,
+                                    max_lines=1,
+                                    overflow=ft.TextOverflow.ELLIPSIS
+                                ),
                             ),
 
                             ft.Container(
                                 margin=ft.margin.only(left=15),
-                                content=ft.Text(self.title, width=260),
+                                content=ft.Text(
+                                    value=str(self.mail_info.subject),
+                                    width=260,
+                                    max_lines=1,
+                                    overflow=ft.TextOverflow.ELLIPSIS
+                                ),
                             ),
 
                             ft.Container(
                                 margin=ft.margin.only(left=15),
-                                content=ft.Text(self.content, width=360),
+                                content=ft.Text(
+                                    value=str(self.mail_info.body),
+                                    width=360,
+                                    max_lines=1,
+                                    overflow=ft.TextOverflow.ELLIPSIS
+                                ),
                             ),
 
                             ft.Container(
                                 margin=ft.margin.only(left=15),
-                                content=ft.Text(self.date, width=100),
+                                content=ft.Text(
+                                    value=getDate(self.mail_info.date),
+                                    width=100,
+                                    max_lines=1,
+                                    overflow=ft.TextOverflow.ELLIPSIS
+                                ),
                             ),
                         ]
                     )
@@ -118,12 +157,22 @@ class InboxPage(ft.UserControl):
 
         mails = ft.Column(spacing=3)
 
-        # default emails
-        mail = Mail("anhhuy007@gmail.com", "Check mail", "Check this email please", "31/12/2023")
-        mail2 = Mail("anhhuy007", "Checking for spacing and scaling", "Check this email without open it and then...",
-                     "31/12/2023")
-        mails.controls.append(mail)
-        mails.controls.append(mail2)
+        # read all json files from folder mailBox
+        folder = "D:/MailBox/mailBox"
+        mail_list = []
+        for file in os.listdir(folder):
+            if file.endswith(".json"):
+                mail_list.append(file)
+
+        # sort mail_list by date
+        mail_list.sort(key=lambda x: os.path.getmtime(folder + "/" + x), reverse=True)
+
+        for file in mail_list:
+            with open(folder + "/" + file, "r") as json_file:
+                data = json_file.read()
+                mail_info = MailInfo.from_json(data)
+                mail = Mail(mail_info)
+                mails.controls.append(mail)
 
         inbox_title = ft.Container(padding=ft.padding.only(top=10, left=5), content=ft.Row(width=1050, controls=[
             ft.Container(
@@ -176,7 +225,7 @@ def ComposeButton():
             self.icon = ft.icons.CREATE
             self.text = "Compose"
             self.on_click = self.show_bs
-            self.bs = mail_compose_view.MailComposeView()
+            self.bs = MailComposeView.MailComposeView()
 
         def bs_dismissed(self, e):
             print("Dismissed!")

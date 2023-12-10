@@ -115,7 +115,7 @@ def MailComposeView():
             )
             self.textfield_content = ft.TextField(
                 hint_text="Content",
-                height=150,
+                height=200,
                 width=630,
                 border_color='transparent',
                 text_size=13,
@@ -219,25 +219,34 @@ def MailComposeView():
             )
 
             self.content = ft.Container(
-                padding=ft.padding.only(left=20, right=20, top=10),
-                height=500,
+                padding=ft.padding.only(left=20, right=20, top=10, bottom=5),
+                height=450,
                 width=1000,
                 content=ft.Column(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     spacing=0,
                     controls=[
-                        header,
-                        to,
-                        ft.Divider(thickness=1, height=1),
-                        cc,
-                        ft.Divider(thickness=1, height=1),
-                        bcc,
-                        ft.Divider(thickness=1, height=1),
-                        title,
-                        ft.Divider(thickness=1, height=1),
-                        content,
+                        ft.Column(
+                            spacing=0,
+                            controls=[
+                                header,
+                                to,
+                                ft.Divider(thickness=1, height=1),
+                                cc,
+                                ft.Divider(thickness=1, height=1),
+                                bcc,
+                                ft.Divider(thickness=1, height=1),
+                                title,
+                                ft.Divider(thickness=1, height=1),
+                                content,
+                            ]
+                        ),
                         send_and_attach,
                     ]
                 )
             )
 
-    return MailCompose_View()
+    mail_compose_view = MailCompose_View()
+    mail_compose_view.is_scroll_controlled = True
+
+    return mail_compose_view

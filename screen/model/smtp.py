@@ -4,7 +4,7 @@ import os
 import base64
 import traceback
 
-from model import myFunction
+import myFunction
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -107,12 +107,12 @@ class SMTPCLIENT:
 
         dateInfo = myFunction.getTime()
         msg = MIMEMultipart()
-        msg['Date'] = dateInfo
-        msg['From'] = self.userEmail
-        msg['To'] = self.to_recipient
-        msg['Cc'] = ', '.join(self.cc_list)
-        msg['Bcc'] = ', '.join(self.bcc_list)
-        msg['Subject'] = self.subject
+        msg['date'] = dateInfo
+        msg['sender'] = self.userEmail
+        msg['to'] = self.to_recipient
+        msg['cc'] = ', '.join(self.cc_list)
+        msg['bcc'] = ', '.join(self.bcc_list)
+        msg['subject'] = self.subject
         # Add body to email
         msg.attach(MIMEText(self.body, 'plain'))
 
@@ -183,7 +183,7 @@ mailserver = "127.0.0.1"
 serverPort = 2225
 serverAddr = (mailserver, serverPort)
 clientAddr = "127.0.0.1"
-clientMail = "codingAkerman@fit.hcmus.edu.vn"
+clientMail = "mail1@gmail.com"
 
 # mailList
 # mail1@gmail.com
@@ -191,8 +191,8 @@ clientMail = "codingAkerman@fit.hcmus.edu.vn"
 # mail3@gmail.com
 
 # Create socket called clientSocket and establish a TCP connection with mailserver
-
-# client = SMTPCLIENT(clientMail,"codingAkerman@fit.hcmus.edu.vn",
+# file_path  = os.path.join(os.path.dirname(__file__), '..','..','test-attachment', 'txtattach.txt')
+# client = SMTPCLIENT(clientMail,"mail1@gmail.com",
 #                 "","",
-#                 "test new mail " + input("Number:"), "2 txt file","txtattach.txt, txtattach2.txt")
+#                 "test new mail " + input("Number:"), input("Body: "), file_path)
 # client.send_mail()

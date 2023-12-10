@@ -49,7 +49,7 @@ def save_mail(parsed_email, user_email):
         dataDict["user_email"] = user_email
         dateInfo = parsed_email['date']
         dataDict["date"] = parsed_email['date']
-        dataDict["from"] = parsed_email['from']
+        dataDict["sender"] = parsed_email['sender']
         dataDict["to"] = parsed_email['to']
         dataDict["cc"] = parsed_email['cc']
         dataDict["bcc"] = parsed_email['bcc']
@@ -66,7 +66,6 @@ def save_mail(parsed_email, user_email):
                 attach["name"] = file_name
                 file_type = file_name[file_name.find("."):]
                 attach["type"] = file_type
-                attach["link"] = ""
 
                 print(f"attachment name : {file_name}")
                 #payload
@@ -81,13 +80,13 @@ def save_mail(parsed_email, user_email):
         dataDict["seen"] = 0
         dataDict["file_saved"] = 0
         # save File
-        save_mail_path =  getFileName(dateInfo)+ ".json"
+        save_mail_path =   'mailBox/' + getFileName(dateInfo)+ ".json"
         # print (save_mail_path + "====================================")
         outputFile = open(save_mail_path,"w")
         json.dump(dataDict,outputFile,indent= 6)
         outputFile.close()
 
-        folder_name = filter_from_json(dataDict["subject"], dataDict["from"], dataDict["body"],  user_email + "/config.json")
+        folder_name = filter_from_json(dataDict["subject"], dataDict["sender"], dataDict["body"],  user_email + "/config.json")
         move_mail_to_folder(user_email, folder_name, save_mail_path)
     except Exception as e:
         print(f"Error occurred: {e}")
@@ -120,19 +119,8 @@ def save_attach(file_path):
 
 
 #////////////////////////////////////////////////////////////////////////
-def move_mail_to_folder(user_name, folder_name, json_file_email_path):
-    try:
-        folder_path = "mailBox/" + user_name + "/" + folder_name
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        
-        shutil.move(json_file_email_path, folder_path)
-        return True
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        return False
-    
-def filter_from_json(subject, sender, body, json_file_path):
+def move_mail_to_folder(user_name,subject,sender,body,email_path,attachment_path):
+    json_file_path = "mailBox/" + user_name + "/config.json"
     try:
         with open(json_file_path, 'r') as json_file:
             filters = json.load(json_file)
@@ -144,23 +132,43 @@ def filter_from_json(subject, sender, body, json_file_path):
     for rule in filters.get("Filter", []):
         conditions = []
 
-        if 'from' in rule:
-            conditions.append(sender.lower() in [from_address.lower() for from_address in rule['from']])
+        if 'From' in rule:
+            conditions.append(sender in rule['From'])
 
-        if 'subject' in rule:
-            conditions.append(any(keyword.lower() in subject.lower() for keyword in rule['subject']))
+        if 'Subject' in rule:
+            conditions.append(any(keyword in subject for keyword in rule['Subject']))
 
-        if 'content' in rule:
-            conditions.append(any(keyword.lower() in body.lower() for keyword in rule['content']))
+        if 'Content' in rule:
+            conditions.append(any(keyword in body for keyword in rule['Content']))
 
-        if 'spam' in rule:
-            conditions.append(any(keyword.lower() in subject.lower() or keyword.lower() in body.lower() for keyword in rule['spam']))
+        if 'Spam' in rule:
+            conditions.append(any(keyword in subject or keyword in body for keyword in rule['Spam']))
 
         if all(conditions):
-            folder_name = rule.get("to_folder", "Other")  # Chuyển folder_name về chữ thường
+            folder_name = rule.get("To_folder", "Other")
             break
-
-    return folder_name
+    try:
+        folder_path = "mailBox/" + user_name + "/" + folder_name
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        
+        shutil.move(email_path, folder_path)
+        return True
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return False
+    
+    if(os.path.isfile(attachment_path)):
+        try:
+            folder_path = "mailBox/" + user_name + "/" + "Attachment"
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+                
+            shutil.move(attachment_path, folder_path)
+            return True
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return False
 
 def create_json_filter(user_mail):
     user_folder_path = os.path.join('mailBox', user_mail)
@@ -195,3 +203,36 @@ def create_json_filter(user_mail):
             json.dump(json_content, json_file, indent=4)
 
     return json_file_path
+
+def filter_from_json(subject, sender, body, json_file_path):
+    try:
+        with open(json_file_path, 'r') as json_file:
+            filters = json.load(json_file)
+    except FileNotFoundError:
+        return "Other"
+
+    folder_name = "Other"
+
+    if(filters["filter"]):
+        for filter in filters["filter"]:
+            if("sender" in filter):
+                for from_filter in filter["sender"]:
+                    if(from_filter in sender):
+                        folder_name = filter["to_folder"]
+                        break
+            if("subject" in filter):
+                for subject_filter in filter["subject"]:
+                    if(subject_filter in subject):
+                        folder_name = filter["to_folder"]
+                        break
+            if("content" in filter):
+                for content_filter in filter["content"]:
+                    if(content_filter in body):
+                        folder_name = filter["to_folder"]
+                        break
+            if("spam" in filter):
+                for spam_filter in filter["spam"]:
+                    if(spam_filter in subject or spam_filter in body):
+                        folder_name = filter["to_folder"]
+                        break
+    return folder_name

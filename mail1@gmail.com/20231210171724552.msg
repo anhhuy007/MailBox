@@ -1,19 +1,19 @@
-Content-Type: multipart/mixed; boundary="===============4212495669168262830=="
+Content-Type: multipart/mixed; boundary="===============2548902397437999455=="
 MIME-Version: 1.0
-Date: 22:10:55 07/12/2023
-From: codingAkerman@fit.hcmus.edu.vn
-To: hahuy@fitus.edu.vn
-Cc: 
-Bcc: 
-Subject: dfa
+date: 17:17:24 10/12/2023
+sender: mail1@gmail.com
+to: mail1@gmail.com
+cc: 
+bcc: 
+subject: test new mail 1030
 
---===============4212495669168262830==
+--===============2548902397437999455==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-df
---===============4212495669168262830==
+1030
+--===============2548902397437999455==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -39,4 +39,4 @@ xrDhu6NjIHBow6F0IHRyaeG7g24gdG/DoG4gZGnhu4duIGLhuqNuIHRow6JuIHThu6sgY8OhYyB0
 cuG6o2kgbmdoaeG7h20gaOG7jWMgdGh14bqtdCwgbmdoacOqbiBj4bupdSBraG9hIGjhu41jLCB0
 aOG7sWMgaMOgbmgsIHRo4buxYyB04bq/ICB04bqhaSBkb2FuaCBuZ2hp4buHcA==
 
---===============4212495669168262830==--
+--===============2548902397437999455==--

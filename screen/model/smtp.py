@@ -120,9 +120,9 @@ class SMTPCLIENT:
         self.attachment_list = self.attachment_list.split(", ")
         if self.attachment_list != ['']:
             for attachment in self.attachment_list:
-                file_name = attachment
-                file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'test-attachment',
-                                         '{}'.format(file_name))
+                # extract file name at the end of  path: "C:\Users\DELL\Desktop\test-attachment\test.txt"
+                file_name = os.path.basename(attachment)
+                file_path = attachment
                 attachment = open(file_path, 'rb')
 
                 body_part = MIMEBase('application', 'octet-stream')

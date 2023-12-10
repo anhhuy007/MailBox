@@ -3,6 +3,8 @@ import mail_content_view as MailContentView
 import mail_compose_view as MailComposeView
 from mail_content_view import MailInfo, FileAttachment
 import os
+from model import pop3 as POP3Client
+from model import myFunction as ClientMailFunction
 
 
 def getDate(date):
@@ -10,6 +12,12 @@ def getDate(date):
     # return: "07/12/2023"
     return date[9:]
 
+
+def on_fetch_email_clicked(e):
+    print("Fetch email")
+    # get email from server
+    client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
+    client.run_pop3()
 
 class AppHeader(ft.UserControl):
     def build(self):
@@ -49,6 +57,8 @@ class AppHeader(ft.UserControl):
                         ft.IconButton(
                             icon=ft.icons.DOWNLOAD_ROUNDED,
                             icon_size=30,
+                            autofocus=False,
+                            on_click=on_fetch_email_clicked
 
                         ),
                         ft.CircleAvatar(
@@ -88,7 +98,7 @@ class Mail(ft.UserControl):
                             ft.Container(
                                 margin=ft.margin.only(left=15),
                                 content=ft.Checkbox(
-                                    value=self.mail_info.seen if self.mail_info.seen == 1 else False,
+                                    value=True if self.mail_info.seen == 1 else False,
                                     disabled=True
                                 ),
                                 width=10

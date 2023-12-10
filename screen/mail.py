@@ -3,8 +3,11 @@ import mail_content_view as MailContentView
 import mail_compose_view as MailComposeView
 from mail_content_view import MailInfo, FileAttachment
 import os
+import sys
+# Add a directory to sys.path
+sys.path.append('D:\MailBox\screen\model')
 from model import pop3 as POP3Client
-from model import myFunction as ClientMailFunction
+from model import myFunction
 
 
 def getDate(date):

@@ -1,6 +1,6 @@
 import socket
 import json
-from model import myFunction
+import myFunction
 import email
 import os
 

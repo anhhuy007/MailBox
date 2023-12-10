@@ -80,7 +80,7 @@ def save_mail(parsed_email, user_email):
         dataDict["seen"] = 0
         dataDict["file_saved"] = 0
         # save File
-        save_mail_path = "mailBox\\" + getFileName(dateInfo) + ".json"
+        save_mail_path = "D:\\MailBox\\mailBox\\" + getFileName(dateInfo) + ".json"
         outputFile = open(save_mail_path, "w")
         json.dump(dataDict, outputFile, indent=6)
         outputFile.close()

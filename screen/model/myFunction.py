@@ -1,4 +1,3 @@
-
 import socket
 import datetime
 import json
@@ -6,7 +5,9 @@ import email
 import base64
 import os
 import shutil
-#smtp file
+
+
+# smtp file
 
 def getTime():
     now = datetime.datetime.now()
@@ -14,27 +15,24 @@ def getTime():
     ans = now.strftime("%H:%M:%S") + " " + today.strftime("%d/%m/%Y")
     return ans
 
+
 def toInfoProccess(method, listRecipient):
-    methodMsg = "SendMethod: "+ method + "\r\n"
+    methodMsg = "SendMethod: " + method + "\r\n"
     recipientData = ""
-    for i in range (0,len(listRecipient)):
+    for i in range(0, len(listRecipient)):
         recipientData += listRecipient[i] + "\r\n"
 
     finalMsg = methodMsg + "To: \r\n" + recipientData
     return finalMsg
 
 
-
-
-
-
 # pop3 file
-#format file name yyyymmddhhmmss
+# format file name yyyymmddhhmmss
 def getFileName(timeInfo):
     timeInfo = timeInfo.split(" ")
     time = timeInfo[0].split(":")
     date = timeInfo[1].split("/")
-    fileName = date[2] + date[1] + date[0] + time[0] + time[1]+ time [2]
+    fileName = date[2] + date[1] + date[0] + time[0] + time[1] + time[2]
     return fileName
 
 
@@ -43,7 +41,7 @@ def save_mail(parsed_email, user_email):
         file_list = []
         attach = {}
         # mail to pypthon dictionary
-        
+
         dataDict = {}
 
         dataDict["user_email"] = user_email
@@ -55,12 +53,12 @@ def save_mail(parsed_email, user_email):
         dataDict["bcc"] = parsed_email['bcc']
         dataDict["subject"] = parsed_email['subject']
 
-         # SAVE FILE
+        # SAVE FILE
         for part in parsed_email.walk():
             if part.get_content_type() == 'text/plain':
                 print(f"body content : {part.get_payload()}")
                 dataDict["body"] = part.get_payload()
-            #attach file
+            # attach file
             elif part.get_content_type() == 'application/octet-stream':
                 file_name = part.get_filename()
                 attach["name"] = file_name
@@ -68,11 +66,12 @@ def save_mail(parsed_email, user_email):
                 attach["type"] = file_type
 
                 print(f"attachment name : {file_name}")
-                #payload
+                # payload
                 file_content = part.get_payload(decode=True)
-                file_content_str = base64.b64encode(file_content).decode()  # Convert bytes to base64 string, b64 decode to use
+                file_content_str = base64.b64encode(
+                    file_content).decode()  # Convert bytes to base64 string, b64 decode to use
                 attach["content"] = file_content_str
-                file_list.append(attach.copy()) # the copy() method returns a shallow copy of the dictionary.
+                file_list.append(attach.copy())  # the copy() method returns a shallow copy of the dictionary.
                 attach.clear()
 
         dataDict["file_num"] = len(file_list)
@@ -80,14 +79,17 @@ def save_mail(parsed_email, user_email):
         dataDict["seen"] = 0
         dataDict["file_saved"] = 0
         # save File
-        save_mail_path =   'mailBox/' + getFileName(dateInfo)+ ".json"
+        save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\"
+        save_mail_path = save_mail_folder + getFileName(dateInfo) + ".json"
         # print (save_mail_path + "====================================")
         outputFile = open(save_mail_path,"w")
         json.dump(dataDict,outputFile,indent= 6)
         outputFile.close()
 
-        folder_name = filter_from_json(dataDict["subject"], dataDict["sender"], dataDict["body"],  user_email + "/config.json")
-        move_mail_to_folder(user_email, folder_name, save_mail_path)
+        # file_config_path= init_user_email_box(user_email)
+        # get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], file_config_path)
+        # move_mail()
+
     except Exception as e:
         print(f"Error occurred: {e}")
         return False
@@ -98,7 +100,7 @@ def save_attach(file_path):
         dataDict = json.load(open(file_path))
         file_list = dataDict["file_list"]
         dateInfo = dataDict["Date"]
-        for i in range(0,dataDict["file_num"]):
+        for i in range(0, dataDict["file_num"]):
             file_name = file_list[i]["name"]
             file_type = file_list[i]["type"]
             file_content = file_list[i]["content"]
@@ -116,102 +118,60 @@ def save_attach(file_path):
 
 
 
+#----------------------------------------------------------
 
 
-#////////////////////////////////////////////////////////////////////////
-def move_mail_to_folder(user_name,subject,sender,body,email_path,attachment_path):
-    json_file_path = "mailBox/" + user_name + "/config.json"
-    try:
-        with open(json_file_path, 'r') as json_file:
-            filters = json.load(json_file)
-    except FileNotFoundError:
-        return "Other"
 
-    folder_name = "Other"
-
-    for rule in filters.get("Filter", []):
-        conditions = []
-
-        if 'From' in rule:
-            conditions.append(sender in rule['From'])
-
-        if 'Subject' in rule:
-            conditions.append(any(keyword in subject for keyword in rule['Subject']))
-
-        if 'Content' in rule:
-            conditions.append(any(keyword in body for keyword in rule['Content']))
-
-        if 'Spam' in rule:
-            conditions.append(any(keyword in subject or keyword in body for keyword in rule['Spam']))
-
-        if all(conditions):
-            folder_name = rule.get("To_folder", "Other")
-            break
-    try:
-        folder_path = "mailBox/" + user_name + "/" + folder_name
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        
-        shutil.move(email_path, folder_path)
-        return True
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        return False
+def init_user_email_box(user_name):
+    user_folder = os.path.join("mailBox", user_name)
+    os.makedirs(user_folder)
     
-    if(os.path.isfile(attachment_path)):
-        try:
-            folder_path = "mailBox/" + user_name + "/" + "Attachment"
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
-                
-            shutil.move(attachment_path, folder_path)
-            return True
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            return False
+    sub_folders = ["Important", "Project", "Work", "Spam","Others"]
+    for folder in sub_folders:
+        folder_path = os.path.join(user_folder, folder)
+        os.makedirs(folder_path)
 
-def create_json_filter(user_mail):
-    user_folder_path = os.path.join('mailBox', user_mail)
-    if not os.path.exists(user_folder_path):
-        os.makedirs(user_folder_path)
+    filter_config_path = os.path.join(user_folder, 'config.json')
+    json_content = {
+        "filter": [
+            {
+                "from": ["ahihi@testing.com", "ahuu@testing.com"],
+                "to_folder": "Project"
+            },
+            {
+                "subject": ["urgent", "ASAP"],
+                "to_folder": "Important"
+            },
+            {
+                "content": ["report", "meeting"],
+                "to_folder": "Work"
+            },
+            {
+                "spam": ["virus", "hack", "crack"],
+                "to_folder": "Spam"
+            }
+        ]
+    }
 
-    json_file_path = os.path.join(user_folder_path, 'config.json')
+    with open(filter_config_path, 'w') as json_file:
+        json.dump(json_content, json_file, indent=4)
 
-    if not os.path.exists(json_file_path):
-        json_content = {
-            "filter": [
-                {
-                    "from": ["ahihi@testing.com", "ahuu@testing.com"],
-                    "to_folder": "Project"
-                },
-                {
-                    "subject": ["urgent", "ASAP"],
-                    "to_folder": "Important"
-                },
-                {
-                    "content": ["report", "meeting"],
-                    "to_folder": "Work"
-                },
-                {
-                    "spam": ["virus", "hack", "crack"],
-                    "to_folder": "Spam"
-                }
-            ]
-        }
+    return filter_config_path
 
-        with open(json_file_path, 'w') as json_file:
-            json.dump(json_content, json_file, indent=4)
+def move_mail(mail, folder_name):
+    mail_folder = os.path.join(folder_name, mail["subject"])
+    os.makedirs(mail_folder, exist_ok=True)
+    shutil.move(mail, mail_folder)
 
-    return json_file_path
 
-def filter_from_json(subject, sender, body, json_file_path):
-    try:
-        with open(json_file_path, 'r') as json_file:
+
+def get_folder_path(subject, sender, body, json_file_path):
+    
+    if (not os.path.exists(json_file_path)):
+        return "Others"
+    else:
+        with open(json_file_path) as json_file:
             filters = json.load(json_file)
-    except FileNotFoundError:
-        return "Other"
-
-    folder_name = "Other"
 
     if(filters["filter"]):
         for filter in filters["filter"]:

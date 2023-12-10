@@ -83,7 +83,7 @@ def MailContentView(mail_info: MailInfo):
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
                     ft.Text(
-                        mail_info.subject,
+                        str(mail_info.subject),
                         size=20,
                         weight=ft.FontWeight.BOLD,
                         width=580,
@@ -134,7 +134,7 @@ def MailContentView(mail_info: MailInfo):
                 alignment=ft.alignment.top_left,
                 content=ft.Row(
                     controls=[
-                        ft.Text(mail_info.body, size=13)
+                        ft.Text(str(mail_info.body), size=13)
                     ]
                 )
             )

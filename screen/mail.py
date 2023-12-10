@@ -171,7 +171,7 @@ class InboxPage(ft.UserControl):
         mails = ft.Column(spacing=3)
 
         # read all json files from folder mailBox
-        folder = "D:/MailBox/mailBox"
+        folder = os.path.join(os.path.dirname(__file__), '..') + "\\mailBox"
         mail_list = []
         for file in os.listdir(folder):
             if file.endswith(".json"):

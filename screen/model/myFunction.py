@@ -43,11 +43,11 @@ def save_mail(parsed_email, user_email):
         # mail to pypthon dictionary
 
         dataDict = {}
-
+        dataDict["id"] = getFileName(parsed_email['Date'])
         dataDict["user_email"] = user_email
         dateInfo = parsed_email['Date']
         dataDict["date"] = parsed_email['Date']
-        dataDict["from"] = parsed_email['From']
+        dataDict["sender"] = parsed_email['From']
         dataDict["to"] = parsed_email['To']
         dataDict["cc"] = parsed_email['Cc']
         dataDict["bcc"] = parsed_email['Bcc']
@@ -64,7 +64,6 @@ def save_mail(parsed_email, user_email):
                 attach["name"] = file_name
                 file_type = file_name[file_name.find("."):]
                 attach["type"] = file_type
-                attach["link"] = ""
 
                 print(f"attachment name : {file_name}")
                 # payload
@@ -80,7 +79,8 @@ def save_mail(parsed_email, user_email):
         dataDict["seen"] = 0
         dataDict["file_saved"] = 0
         # save File
-        save_mail_path = "D:\\MailBox\\mailBox\\" + getFileName(dateInfo) + ".json"
+        save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\"
+        save_mail_path = save_mail_folder + getFileName(dateInfo) + ".json"
         outputFile = open(save_mail_path, "w")
         json.dump(dataDict, outputFile, indent=6)
         outputFile.close()
@@ -91,16 +91,17 @@ def save_mail(parsed_email, user_email):
     return True
 
 
-def save_attach(file_path):
+def save_attach(file_name, destination_path):
     try:
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\" + file_name + '.json'
         dataDict = json.load(open(file_path))
         file_list = dataDict["file_list"]
-        dateInfo = dataDict["Date"]
+        dateInfo = dataDict["date"]
         for i in range(0, dataDict["file_num"]):
             file_name = file_list[i]["name"]
             file_type = file_list[i]["type"]
             file_content = file_list[i]["content"]
-            save_file_path = "mailBox\\" + getFileName(dateInfo) + file_name
+            save_file_path = destination_path + "\\" + file_name
             # open and write file ("wb")
             file_content = base64.b64decode(file_content)
             with open(save_file_path, 'wb') as f:
@@ -123,7 +124,7 @@ def create_folder(user_name, folder_name, file_path):
         shutil.move(file_path, folder_path)
         return True
     except Exception as e:
-        print(f"Error occurred: {e}")
+        print   (f"Error occurred: {e}")
         return False
 
 

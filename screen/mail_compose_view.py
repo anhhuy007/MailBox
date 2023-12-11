@@ -1,9 +1,9 @@
 import flet as ft
 
-
 import sys
+
 # Add a directory to sys.path
-sys.path.append('D:\\MMTseminar2\\MailBox\\screen\\model\\')
+sys.path.append('D:\MailBox\screen\model')
 import smtp
 
 
@@ -72,7 +72,7 @@ def MailComposeView():
             if total_size > 3 * 1024 * 1024:
                 print("File size overflow")
                 # display announcement dialog
-                self.on_open_dialog(e)
+                await self.on_open_dialog(e)
                 return
 
             self.selected_files.value = (
@@ -146,9 +146,24 @@ def MailComposeView():
                 max_length=1000
             )
 
+            async def close_dlg(e):
+                self.file_size_overflow_dialog.open = False
+                await self.file_size_overflow_dialog.update_async()
+
             self.file_size_overflow_dialog = ft.AlertDialog(
-                title=ft.Text('File size must be less than 3MB'),
-                on_dismiss=lambda e: print("Dialog dismissed!")
+                title=ft.Container(
+                    width=300,
+                    content=ft.Text(
+                        value='Announcement',
+                        weight=ft.FontWeight.BOLD,
+                    ),
+                ),
+                content=ft.Text('File size must be less than 3MB!'),
+                modal=False,
+                on_dismiss=lambda e: print("Dialog dismissed!"),
+                actions=[
+                    ft.TextButton("Close", on_click=close_dlg),
+                ],
             )
             self.pick_file_dialog = ft.FilePicker(on_result=self.pick_files_result)
             self.selected_files = ft.Text(value="No attachment", max_lines=1, width=300,

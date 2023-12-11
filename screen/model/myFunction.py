@@ -84,7 +84,7 @@ def save_mail(parsed_email, user_email):
         outputFile = open(save_mail_path, "w")
         json.dump(dataDict, outputFile, indent=6)
         outputFile.close()
-        filter(dataDict["Subject"], dataDict["From"], dataDict["body"], save_mail_path, user_email)
+        # filter(dataDict["Subject"], dataDict["From"], dataDict["body"], save_mail_path, user_email)
     except Exception as e:
         print(f"Error occurred: {e}")
         return False

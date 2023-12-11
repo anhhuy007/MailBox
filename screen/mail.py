@@ -4,6 +4,7 @@ import mail_compose_view as MailComposeView
 from mail_content_view import MailInfo, FileAttachment
 import os
 import sys
+
 # Add a directory to sys.path
 sys.path.append('D:\MailBox\screen\model')
 from model import pop3 as POP3Client
@@ -16,13 +17,18 @@ def getDate(date):
     return date[9:]
 
 
-def on_fetch_email_clicked(e):
-    print("Fetch email")
-    # get email from server
-    client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
-    client.run_pop3()
+# def on_fetch_email_clicked(e):
+#     print("Fetch email")
+#     # get email from server
+#     client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
+#     client.run_pop3()
 
 class AppHeader(ft.UserControl):
+
+    def __init__(self, _on_fetch_email_clicked):
+        super().__init__()
+        self.on_fetch_email_clicked = _on_fetch_email_clicked
+
     def build(self):
         self.iconTitle = ft.Row(
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -61,7 +67,7 @@ class AppHeader(ft.UserControl):
                             icon=ft.icons.DOWNLOAD_ROUNDED,
                             icon_size=30,
                             autofocus=False,
-                            on_click=on_fetch_email_clicked
+                            on_click=self.on_fetch_email_clicked
 
                         ),
                         ft.CircleAvatar(
@@ -164,12 +170,15 @@ class Mail(ft.UserControl):
 
 
 class InboxPage(ft.UserControl):
+
+    def __init__(self):
+        super().__init__()
+        self.mails = ft.Column(
+            spacing=3,
+            scroll=ft.ScrollMode.ALWAYS
+        )
+
     def build(self):
-        async def add_mail(self, mail):
-            await self.mails.control.append(mail)
-
-        mails = ft.Column(spacing=3)
-
         # read all json files from folder mailBox
         folder = os.path.join(os.path.dirname(__file__), '..') + "\\mailBox"
         mail_list = []
@@ -179,13 +188,13 @@ class InboxPage(ft.UserControl):
 
         # sort mail_list by date
         mail_list.sort(key=lambda x: os.path.getmtime(folder + "/" + x), reverse=True)
-
+        self.mails.controls.clear()
         for file in mail_list:
             with open(folder + "/" + file, "r") as json_file:
                 data = json_file.read()
                 mail_info = MailInfo.from_json(data)
                 mail = Mail(mail_info)
-                mails.controls.append(mail)
+                self.mails.controls.append(mail)
 
         inbox_title = ft.Container(padding=ft.padding.only(top=10, left=5), content=ft.Row(width=1050, controls=[
             ft.Container(
@@ -223,7 +232,7 @@ class InboxPage(ft.UserControl):
                     inbox_title,
                     ft.Container(
                         border_radius=10,
-                        content=mails
+                        content=self.mails
                     )
                 ]
             )
@@ -268,10 +277,17 @@ def ComposeButton():
 
 
 class AppBody(ft.UserControl):
+
+    def __init__(self):
+        super().__init__()
+        self.inbox_page = InboxPage()
+        self.inbox_page.mails.controls.clear()
+
     def build(self):
         # AppBody attributes
+
         pages = [
-            InboxPage(),
+            self.inbox_page,
             ft.Container(content=ft.Text("Page 2")),
             ft.Container(content=ft.Text("Page 3")),
         ]
@@ -323,12 +339,57 @@ class AppBody(ft.UserControl):
 
 
 class MailApp(ft.UserControl):
+
+    async def on_fetch_mail_clicked(self, e):
+        print("Fetch email")
+        # get email from server
+        client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
+        client.run_pop3()
+
+        # read all json files from folder mailBox
+        folder = os.path.join(os.path.dirname(__file__), '..') + "\\mailBox"
+        mail_list = []
+        for file in os.listdir(folder):
+            if file.endswith(".json"):
+                mail_list.append(file)
+
+        # sort mail_list by date
+        mail_list.sort(key=lambda x: os.path.getmtime(folder + "/" + x), reverse=True)
+
+        # clear inbox page
+        self.app_body.inbox_page.mails.controls.clear()
+
+        # add new mail to inbox page
+        for file in mail_list:
+            with open(folder + "/" + file, "r") as json_file:
+                data = json_file.read()
+                mail_info = MailInfo.from_json(data)
+                mail = Mail(mail_info)
+                self.app_body.inbox_page.mails.controls.append(mail)
+
+        await self.app_body.inbox_page.mails.update_async()
+
+    def __init__(self):
+        super().__init__()
+        self.app_header = AppHeader(self.on_fetch_mail_clicked)
+        self.app_body = AppBody()
+
+    async def did_mount_async(self):
+        # self.app_body.inbox_page.controls.append(InboxPage())
+        await self.app_body.inbox_page.update_async()
+        await self.update_async()
+
+    async def will_unmount_async(self):
+        print("Mail app unmount")
+        self.app_body.inbox_page.controls.clear()
+
+
     def build(self):
         return ft.Column(
             expand=True,
             controls=[
-                AppHeader(),
-                AppBody(),
+                self.app_header,
+                self.app_body
             ]
         )
 

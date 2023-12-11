@@ -95,7 +95,7 @@ def MailContentView(mail_info: MailInfo):
 
         # happens when example is removed from the page (when user chooses different control group on the navigation rail)
         async def will_unmount_async(self):
-            await self.page.overlay.remove(self.content)
+            self.page.overlay.remove(self.save_file_dialog)
             await self.page.update_async()
 
         def __init__(self):

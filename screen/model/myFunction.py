@@ -43,7 +43,7 @@ def save_mail(parsed_email, user_email):
         # mail to pypthon dictionary
 
         dataDict = {}
-
+        dataDict["id"] = getFileName(parsed_email['Date'])
         dataDict["user_email"] = user_email
         dateInfo = parsed_email['date']
         dataDict["date"] = parsed_email['date']
@@ -97,14 +97,15 @@ def save_mail(parsed_email, user_email):
 
 def save_attach(file_path):
     try:
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\" + file_name + '.json'
         dataDict = json.load(open(file_path))
         file_list = dataDict["file_list"]
-        dateInfo = dataDict["Date"]
+        dateInfo = dataDict["date"]
         for i in range(0, dataDict["file_num"]):
             file_name = file_list[i]["name"]
             file_type = file_list[i]["type"]
             file_content = file_list[i]["content"]
-            save_file_path = "mailBox\\" + getFileName(dateInfo) + file_name
+            save_file_path = destination_path + "\\" + file_name
             # open and write file ("wb")
             file_content = base64.b64decode(file_content)
             with open(save_file_path, 'wb') as f:

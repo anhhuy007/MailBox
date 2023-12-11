@@ -1,7 +1,7 @@
 import flet as ft
 from typing import List
 import json
-
+from model import myFunction
 
 class FileAttachment:
     name: str
@@ -20,6 +20,7 @@ class FileAttachment:
 
 
 class MailInfo:
+    id: str
     user_email: str
     date: str
     sender: str
@@ -33,8 +34,9 @@ class MailInfo:
     seen: int
     file_saved: int
 
-    def __init__(self, user_email: str, date: str, sender: str, to: str, cc: str, bcc: str, subject: int, body: int,
+    def __init__(self, id: str, user_email: str, date: str, sender: str, to: str, cc: str, bcc: str, subject: int, body: int,
                  file_num: int, file_list: [FileAttachment], seen: int, file_saved: int) -> None:
+        self.id = id
         self.user_email = user_email
         self.date = date
         self.sender = sender
@@ -55,7 +57,7 @@ class MailInfo:
         return cls(**json_dict)
 
     def __repr__(self):
-        return f"MailInfo({self.user_email}, {self.date}, {self.sender}, {self.to}, {self.cc}, {self.bcc}, {self.subject}, {self.body}, {self.file_num}, {self.file_list}, {self.seen}, {self.file_saved})"
+        return f"MailInfo({self.id}, {self.user_email}, {self.date}, {self.sender}, {self.to}, {self.cc}, {self.bcc}, {self.subject}, {self.body}, {self.file_num}, {self.file_list}, {self.seen}, {self.file_saved})"
 
 
 def MailContentView(mail_info: MailInfo):
@@ -74,6 +76,27 @@ def MailContentView(mail_info: MailInfo):
         async def on_close(self, e):
             self.open = False
             await self.update_async()
+
+        async def save_file_result(self, e: ft.FilePickerResultEvent):
+            print("On save file result")
+            self.save_file_path = e.path if e.path else "Canceled!"
+            print(f"Destination path: {e.path}")
+            myFunction.save_attach(mail_info.id, self.save_file_path)
+
+        async def download_attachments(self, e):
+            print("download_attachments")
+
+            # get destination folder
+            await self.save_file_dialog.get_directory_path_async()
+
+        async def did_mount_async(self):
+            self.page.overlay.append(self.save_file_dialog)
+            await self.page.update_async()
+
+        # happens when example is removed from the page (when user chooses different control group on the navigation rail)
+        async def will_unmount_async(self):
+            await self.page.overlay.remove(self.content)
+            await self.page.update_async()
 
         def __init__(self):
             super().__init__()
@@ -169,6 +192,7 @@ def MailContentView(mail_info: MailInfo):
                                     ft.FilledButton(
                                         "Download all attachments",
                                         icon=ft.icons.DOWNLOAD_ROUNDED,
+                                        on_click=self.download_attachments
                                     ),
                                 ]),
 
@@ -184,6 +208,9 @@ def MailContentView(mail_info: MailInfo):
                     ]
                 )
             )
+
+            self.save_file_dialog = ft.FilePicker(on_result=self.save_file_result)
+            self.save_file_path = ""
 
             self.content = ft.Container(
                 padding=ft.padding.only(left=20, right=20, top=10, bottom=5),

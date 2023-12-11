@@ -64,6 +64,8 @@ class POP3CLIENT:
         # read prev index
         data = json.load(open_file)
         self.mail_prev_index = data["mail_index"]
+        if self.mail_prev_index > self.mail_curr_index:
+            self.mail_prev_index = 0
         print("----------Mail prev index: ", self.mail_prev_index)
         # write new index
         open_file.seek(0)  # go to the beginning of the file

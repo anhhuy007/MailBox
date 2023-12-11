@@ -60,7 +60,7 @@ class MailInfo:
         return f"MailInfo({self.id}, {self.user_email}, {self.date}, {self.sender}, {self.to}, {self.cc}, {self.bcc}, {self.subject}, {self.body}, {self.file_num}, {self.file_list}, {self.seen}, {self.file_saved})"
 
 
-def MailContentView(mail_info: MailInfo):
+def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
     def getAttachmentsName(file_list: List[FileAttachment]):
         ans: str = ""
 
@@ -95,8 +95,33 @@ def MailContentView(mail_info: MailInfo):
 
         # happens when example is removed from the page (when user chooses different control group on the navigation rail)
         async def will_unmount_async(self):
-            await self.page.overlay.remove(self.content)
+            self.page.overlay.remove(self.save_file_dialog)
             await self.page.update_async()
+
+        async def seen_mail_clicked(self, e):
+            print("seen_mail_clicked")
+            myFunction.seen_mail(mail_info.id)
+            await _seen_mail_clicked(e)
+
+        def get_receiver_list(self):
+            ans: str = ""
+
+            if mail_info.to != "":
+                ans += mail_info.to + ", "
+
+            elif mail_info.cc != "":
+                ans += mail_info.cc + ", "
+
+            elif mail_info.bcc != "":
+                # just get user email in bcc list
+                for email in mail_info.bcc.split(", "):
+                    if email == mail_info.user_email:
+                        ans += email + ", "
+
+            # remove last ", "
+            ans = ans[:-2]
+
+            return ans
 
         def __init__(self):
             super().__init__()
@@ -135,7 +160,7 @@ def MailContentView(mail_info: MailInfo):
                 content=ft.Row(
                     controls=[
                         ft.Text("To: "),
-                        ft.Text(mail_info.to, size=13)
+                        ft.Text(self.get_receiver_list(), size=13)
                     ]
                 )
             )
@@ -187,6 +212,7 @@ def MailContentView(mail_info: MailInfo):
                                     ft.FilledButton(
                                         "Mark as read",
                                         icon=ft.icons.VISIBILITY_ROUNDED,
+                                        on_click=self.seen_mail_clicked
                                     ),
 
                                     ft.FilledButton(

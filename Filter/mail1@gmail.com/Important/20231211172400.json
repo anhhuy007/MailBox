@@ -1,0 +1,21 @@
+{
+      "id": "20231211172400",
+      "user_email": "mail1@gmail.com",
+      "date": "17:24:00 11/12/2023",
+      "sender": "codingAkerman@fit.hcmus.edu.vn",
+      "to": "mail1@gmail.com",
+      "cc": "",
+      "bcc": "",
+      "subject": "ASAP 123546",
+      "body": "test important",
+      "file_num": 1,
+      "file_list": [
+            {
+                  "name": "txtattach2.txt",
+                  "type": ".txt",
+                  "content": "QmFieSwgSSdtIGRhbmNpbmcgaW4gdGhlIGRhcmsNCldpdGggeW91IGJldHdlZW4gbXkgYXJtcw0KQmFyZWZvb3Qgb24gdGhlIGdyYXNzDQpMaXN0ZW5pbmcgdG8gb3VyIGZhdm91cml0ZSBzb25nDQpXaGVuIHlvdSBzYWlkIHlvdSBsb29rZWQgYSBtZXNzDQpJIHdoaXNwZXJlZCB1bmRlcm5lYXRoIG15IGJyZWF0aA0KQnV0IHlvdSBoZWFyZCBpdA0KRGFybGluZywgeW91IGxvb2sgcGVyZmVjdCB0b25pZ2h0"
+            }
+      ],
+      "seen": 0,
+      "file_saved": 0
+}

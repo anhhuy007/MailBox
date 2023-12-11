@@ -176,7 +176,8 @@ class Mail(ft.UserControl):
 
     # happens when example is removed from the page (when user chooses different control group on the navigation rail)
     async def will_unmount_async(self):
-        self.page.overlay.remove(self.bs)
+        if self.bs.open:
+            self.page.overlay.remove(self.bs)
         await self.page.update_async()
 
 
@@ -191,7 +192,7 @@ class InboxPage(ft.UserControl):
 
     def build(self):
         # read all json files from folder mailBox
-        folder = os.path.join(os.path.dirname(__file__), '..','mailBox')
+        folder = os.path.join(os.path.dirname(__file__), '..', 'mailBox')
         mail_list = []
         for file in os.listdir(folder):
             if file.endswith(".json"):
@@ -354,7 +355,7 @@ class MailApp(ft.UserControl):
     async def on_fetch_mail_clicked(self, e):
         print("Fetch email")
         # get email from server
-        client = POP3Client.POP3CLIENT("mail1@gmail.com", "123")
+        client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
         client.run_pop3()
 
         # read all json files from folder mailBox
@@ -383,24 +384,26 @@ class MailApp(ft.UserControl):
     async def refresh_inbox(self):
         while True:
             print("Refresh inbox")
-            # get email from server
-            # self.on_fetch_mail_clicked(None)
-            await asyncio.sleep(10)
+            await self.on_fetch_mail_clicked(None)
+            await asyncio.sleep(5)  # Sleep for 10 minutes
 
     def __init__(self):
         super().__init__()
         self.app_header = AppHeader(self.on_fetch_mail_clicked)
         self.app_body = AppBody()
-        self.refresh_thread = threading.Thread(target=self.refresh_inbox)
+        self.refresh_task = None  # Store the reference to the refresh task
 
     async def did_mount_async(self):
-        # self.refresh_thread.start()
+        self.refresh_task = asyncio.create_task(self.refresh_inbox())  # Start the refresh task
+        await self.refresh_inbox()
         await self.app_body.inbox_page.update_async()
         await self.update_async()
 
     async def will_unmount_async(self):
         print("Mail app unmount")
         self.app_body.inbox_page.controls.clear()
+        if self.refresh_task:
+            self.refresh_task.cancel()  # Cancel the refresh task when the app is unmounted
 
     def build(self):
         return ft.Column(
@@ -426,5 +429,5 @@ async def main(page: ft.Page):
     page.theme = ft.Theme(font_family="Open Sans")
     await page.add_async(MailApp())
 
-
-ft.app(main)
+loop = asyncio.get_event_loop()
+loop.run_until_complete(ft.app(main))

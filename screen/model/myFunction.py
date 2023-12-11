@@ -114,6 +114,20 @@ def save_attach(file_name, destination_path):
     return True
 
 
+def seen_mail(file_name):
+    try:
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\" + file_name + '.json'
+        dataDict = json.load(open(file_path))
+        dataDict["seen"] = 1
+        outputFile = open(file_path, "w")
+        json.dump(dataDict, outputFile, indent=6)
+        outputFile.close()
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return False
+    return True
+
+
 # ////////////////////////////////////////////////////////////////////////
 def create_folder(user_name, folder_name, file_path):
     try:

@@ -60,7 +60,7 @@ class MailInfo:
         return f"MailInfo({self.id}, {self.user_email}, {self.date}, {self.sender}, {self.to}, {self.cc}, {self.bcc}, {self.subject}, {self.body}, {self.file_num}, {self.file_list}, {self.seen}, {self.file_saved})"
 
 
-def MailContentView(mail_info: MailInfo):
+def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
     def getAttachmentsName(file_list: List[FileAttachment]):
         ans: str = ""
 
@@ -97,6 +97,11 @@ def MailContentView(mail_info: MailInfo):
         async def will_unmount_async(self):
             self.page.overlay.remove(self.save_file_dialog)
             await self.page.update_async()
+
+        async def seen_mail_clicked(self, e):
+            print("seen_mail_clicked")
+            myFunction.seen_mail(mail_info.id)
+            await _seen_mail_clicked(e)
 
         def __init__(self):
             super().__init__()
@@ -187,6 +192,7 @@ def MailContentView(mail_info: MailInfo):
                                     ft.FilledButton(
                                         "Mark as read",
                                         icon=ft.icons.VISIBILITY_ROUNDED,
+                                        on_click=self.seen_mail_clicked
                                     ),
 
                                     ft.FilledButton(

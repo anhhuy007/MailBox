@@ -82,16 +82,27 @@ class AppHeader(ft.UserControl):
 
 
 class Mail(ft.UserControl):
-    def __init__(self, mail_info: MailInfo):
-        super().__init__()
-        self.mail_info = mail_info
-        self.bs = MailContentView.MailContentView(self.mail_info)
-        self.bs.open = False
 
     async def on_email_clicked(self, e):
         print("on click")
         self.bs.open = True
         await self.bs.update_async()
+
+    async def seen_mail_clicked(self, e):
+        print("seen_mail_clicked")
+        myFunction.seen_mail(self.mail_info.id)
+        self.seen_mail_status.value = True
+        await self.seen_mail_status.update_async()
+
+    def __init__(self, mail_info: MailInfo):
+        super().__init__()
+        self.mail_info = mail_info
+        self.bs = MailContentView.MailContentView(self.mail_info, self.seen_mail_clicked)
+        self.bs.open = False
+        self.seen_mail_status = ft.Checkbox(
+            value=True if self.mail_info.seen == 1 else False,
+            disabled=True
+        )
 
     def build(self):
         return ft.Container(
@@ -106,10 +117,7 @@ class Mail(ft.UserControl):
                         controls=[
                             ft.Container(
                                 margin=ft.margin.only(left=15),
-                                content=ft.Checkbox(
-                                    value=True if self.mail_info.seen == 1 else False,
-                                    disabled=True
-                                ),
+                                content=self.seen_mail_status,
                                 width=10
                             ),
 
@@ -382,7 +390,6 @@ class MailApp(ft.UserControl):
     async def will_unmount_async(self):
         print("Mail app unmount")
         self.app_body.inbox_page.controls.clear()
-
 
     def build(self):
         return ft.Column(

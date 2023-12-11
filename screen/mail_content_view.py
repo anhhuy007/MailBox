@@ -103,6 +103,26 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
             myFunction.seen_mail(mail_info.id)
             await _seen_mail_clicked(e)
 
+        def get_receiver_list(self):
+            ans: str = ""
+
+            if mail_info.to != "":
+                ans += mail_info.to + ", "
+
+            elif mail_info.cc != "":
+                ans += mail_info.cc + ", "
+
+            elif mail_info.bcc != "":
+                # just get user email in bcc list
+                for email in mail_info.bcc.split(", "):
+                    if email == mail_info.user_email:
+                        ans += email + ", "
+
+            # remove last ", "
+            ans = ans[:-2]
+
+            return ans
+
         def __init__(self):
             super().__init__()
 
@@ -140,7 +160,7 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                 content=ft.Row(
                     controls=[
                         ft.Text("To: "),
-                        ft.Text(mail_info.to, size=13)
+                        ft.Text(self.get_receiver_list(), size=13)
                     ]
                 )
             )

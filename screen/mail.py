@@ -4,6 +4,9 @@ import mail_compose_view as MailComposeView
 from mail_content_view import MailInfo, FileAttachment
 import os
 import sys
+import threading
+import time
+import asyncio
 
 # Add a directory to sys.path
 sys.path.append('D:\MailBox\screen\model')
@@ -377,13 +380,26 @@ class MailApp(ft.UserControl):
 
         await self.app_body.inbox_page.mails.update_async()
 
+    async def refresh_inbox(self):
+        while True:
+            print("Refresh inbox")
+            # get email from server
+            await self.on_fetch_mail_clicked(None)
+            await asyncio.sleep(10)
+
+    def run_refresh_inbox(self):
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self.refresh_inbox())
+
     def __init__(self):
         super().__init__()
         self.app_header = AppHeader(self.on_fetch_mail_clicked)
         self.app_body = AppBody()
+        self.loop = asyncio.new_event_loop()
+        self.refresh_thread = threading.Thread(target=self.run_refresh_inbox)
 
     async def did_mount_async(self):
-        # self.app_body.inbox_page.controls.append(InboxPage())
+        # self.refresh_thread.start()
         await self.app_body.inbox_page.update_async()
         await self.update_async()
 

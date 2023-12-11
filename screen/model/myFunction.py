@@ -84,7 +84,10 @@ def save_mail(parsed_email, user_email):
         outputFile = open(save_mail_path, "w")
         json.dump(dataDict, outputFile, indent=6)
         outputFile.close()
-        # filter(dataDict["Subject"], dataDict["From"], dataDict["body"], save_mail_path, user_email)
+        filter_config_path = init_user_email_box(user_email)
+        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path)
+        move_mail(save_mail_path, folder_path)
+
     except Exception as e:
         print(f"Error occurred: {e}")
         return False
@@ -129,32 +132,73 @@ def seen_mail(file_name):
 
 
 # ////////////////////////////////////////////////////////////////////////
-def create_folder(user_name, folder_name, file_path):
-    try:
-        folder_path = "mailBox/" + user_name + "/" + folder_name
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+def init_user_email_box(user_name):
+    user_folder = user_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\Filter\\" + user_name
+    os.makedirs(user_folder)
 
-        shutil.move(file_path, folder_path)
-        return True
-    except Exception as e:
-        print   (f"Error occurred: {e}")
-        return False
+    sub_folders = ["Important", "Project", "Work", "Spam"]
+    for folder in sub_folders:
+        folder_path = os.path.join(user_folder, folder)
+        os.makedirs(folder_path)
+
+    filter_config_path = os.path.join(user_folder, 'config.json')
+    json_content = {
+        "From": {
+            "from": ["ahihi@testing.com", "ahuu@testing.com"],
+            "to_folder": "Project"
+        },
+        "Subject": {
+            "subject": ["urgent", "ASAP"],
+            "to_folder": "Important"
+        },
+        "Content": {
+            "content": ["report", "meeting"],
+            "to_folder": "Work"
+        },
+        "Spam": {
+            "spam": ["virus", "hack", "crack"],
+            "to_folder": "Spam"
+        }
+    }
+
+    with open(filter_config_path, 'w') as json_file:
+        json.dump(json_content, json_file, indent=4)
+
+    return filter_config_path
 
 
-def filter(subject, sender, content, file_path, user_name):
-    if sender == "ahihi@testing.com" or sender == "ahuu@testing.com":
-        folder_name = "Project"
-    elif "urgent" in subject or "ASAP" in subject:
-        folder_name = "Important"
-    elif "report" in content or "meeting" in content:
-        folder_name = "Work"
-    elif "virus" in subject or "hack" in subject or "crack" in subject or "virus" in content or "hack" in content or "crack" in content:
-        folder_name = "Spam"
+# ////////////////////////////////////////////////////////////////////////
+def move_mail(mail, folder_name):
+    mail_folder = os.path.join(folder_name, mail["subject"])
+    os.makedirs(mail_folder, exist_ok=True)
+
+    shutil.move(mail, mail_folder)
+
+
+def get_folder_path(subject, sender, body, json_file_path):
+    if not os.path.exists(json_file_path):
+        return "Spam"
     else:
-        return "Other"
+        with open(json_file_path) as json_file:
+            filters = json.load(json_file)
 
-    if create_folder(user_name, folder_name, file_path):
-        return f"To folder: {folder_name}"
-    else:
-        return "Failed to create folder or move file"
+    folder_name = "Spam"
+    for filter_item in filters:
+        for sender_filter in filter_item["From"]["from"]:
+            if sender_filter.lower() in sender.lower():
+                folder_name = filter_item["From"]["to_folder"]
+                break
+        for subject_filter in filter_item["Subject"]["subject"]:
+            if subject_filter.lower() in subject.lower():
+                folder_name = filter_item["Subject"]["to_folder"]
+                break
+        for content_filter in filter_item["Content"]["content"]:
+            if content_filter.lower() in body.lower():
+                folder_name = filter_item["Content"]["to_folder"]
+                break
+        for spam_filter in filter_item["Spam"]["spam"]:
+            if spam_filter.lower() in body.lower() or spam_filter.lower() in subject.lower():
+                folder_name = filter_item["Spam"]["to_folder"]
+                break
+
+    return folder_name

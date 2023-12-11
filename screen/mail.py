@@ -384,19 +384,14 @@ class MailApp(ft.UserControl):
         while True:
             print("Refresh inbox")
             # get email from server
-            await self.on_fetch_mail_clicked(None)
+            # self.on_fetch_mail_clicked(None)
             await asyncio.sleep(10)
-
-    def run_refresh_inbox(self):
-        asyncio.set_event_loop(self.loop)
-        self.loop.run_until_complete(self.refresh_inbox())
 
     def __init__(self):
         super().__init__()
         self.app_header = AppHeader(self.on_fetch_mail_clicked)
         self.app_body = AppBody()
-        self.loop = asyncio.new_event_loop()
-        self.refresh_thread = threading.Thread(target=self.run_refresh_inbox)
+        self.refresh_thread = threading.Thread(target=self.refresh_inbox)
 
     async def did_mount_async(self):
         # self.refresh_thread.start()

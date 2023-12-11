@@ -51,8 +51,25 @@ def MailComposeView():
             await self.pick_file_dialog.pick_files_async(allow_multiple=True)
             await self.update_async()
 
+        async def on_open_dialog(self, e):
+            self.page.dialog = self.file_size_overflow_dialog
+            self.file_size_overflow_dialog.open = True
+            await self.file_size_overflow_dialog.update_async()
+
         async def pick_files_result(self, e: ft.FilePickerResultEvent):
             print("On pick files result")
+
+            # check file size <= 3mb
+            total_size = 0
+            for file in e.files:
+                total_size += file.size
+
+            if total_size > 3 * 1024 * 1024:
+                print("File size overflow")
+                # display announcement dialog
+                self.on_open_dialog(e)
+                return
+
             self.selected_files.value = (
                 ", ".join(map(lambda f: f.name, e.files)) if e.files else "No attachment"
             )
@@ -75,6 +92,7 @@ def MailComposeView():
         async def did_mount_async(self):
             self.page.overlay.append(self.pick_file_dialog)
             self.page.overlay.append(self.selected_files)
+            self.page.overlay.append(self.file_size_overflow_dialog)
             await self.page.update_async()
 
         # happens when example is removed from the page (when user chooses different control group on the navigation rail)
@@ -123,6 +141,10 @@ def MailComposeView():
                 max_length=1000
             )
 
+            self.file_size_overflow_dialog = ft.AlertDialog(
+                title=ft.Text('File size must be less than 3MB'),
+                on_dismiss=lambda e: print("Dialog dismissed!")
+            )
             self.pick_file_dialog = ft.FilePicker(on_result=self.pick_files_result)
             self.selected_files = ft.Text(value="No attachment", max_lines=1, width=300,
                                           overflow=ft.TextOverflow.ELLIPSIS, text_align=ft.TextAlign.RIGHT)

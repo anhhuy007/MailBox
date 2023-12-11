@@ -1,5 +1,10 @@
 import flet as ft
-from model import smtp
+
+
+import sys
+# Add a directory to sys.path
+sys.path.append('D:\\MMTseminar2\\MailBox\\screen\\model\\')
+import smtp
 
 
 def MailComposeView():

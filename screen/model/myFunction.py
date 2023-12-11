@@ -45,13 +45,13 @@ def save_mail(parsed_email, user_email):
         dataDict = {}
         dataDict["id"] = getFileName(parsed_email['Date'])
         dataDict["user_email"] = user_email
-        dateInfo = parsed_email['Date']
-        dataDict["date"] = parsed_email['Date']
-        dataDict["sender"] = parsed_email['From']
-        dataDict["to"] = parsed_email['To']
-        dataDict["cc"] = parsed_email['Cc']
-        dataDict["bcc"] = parsed_email['Bcc']
-        dataDict["subject"] = parsed_email['Subject']
+        dateInfo = parsed_email['date']
+        dataDict["date"] = parsed_email['date']
+        dataDict["sender"] = parsed_email['sender']
+        dataDict["to"] = parsed_email['to']
+        dataDict["cc"] = parsed_email['cc']
+        dataDict["bcc"] = parsed_email['bcc']
+        dataDict["subject"] = parsed_email['subject']
 
         # SAVE FILE
         for part in parsed_email.walk():
@@ -81,11 +81,12 @@ def save_mail(parsed_email, user_email):
         # save File
         save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\"
         save_mail_path = save_mail_folder + getFileName(dateInfo) + ".json"
-        outputFile = open(save_mail_path, "w")
-        json.dump(dataDict, outputFile, indent=6)
+        # print (save_mail_path + "====================================")
+        outputFile = open(save_mail_path,"w")
+        json.dump(dataDict,outputFile,indent= 6)
         outputFile.close()
         filter_config_path = init_user_email_box(user_email)
-        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path)
+        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path, user_email)
         move_mail(save_mail_path, folder_path)
 
     except Exception as e:
@@ -93,8 +94,7 @@ def save_mail(parsed_email, user_email):
         return False
     return True
 
-
-def save_attach(file_name, destination_path):
+def save_attach(file_path):
     try:
         file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\" + file_name + '.json'
         dataDict = json.load(open(file_path))
@@ -133,13 +133,15 @@ def seen_mail(file_name):
 
 # ////////////////////////////////////////////////////////////////////////
 def init_user_email_box(user_name):
-    user_folder = user_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\Filter\\" + user_name
-    os.makedirs(user_folder)
+    user_folder = user_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\Filter\\" + user_name+ "\\"
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
 
     sub_folders = ["Important", "Project", "Work", "Spam"]
     for folder in sub_folders:
         folder_path = os.path.join(user_folder, folder)
-        os.makedirs(folder_path)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
     filter_config_path = os.path.join(user_folder, 'config.json')
     json_content = {
@@ -168,37 +170,41 @@ def init_user_email_box(user_name):
 
 
 # ////////////////////////////////////////////////////////////////////////
-def move_mail(mail, folder_name):
-    mail_folder = os.path.join(folder_name, mail["subject"])
-    os.makedirs(mail_folder, exist_ok=True)
+def move_mail(mail_path, folder_path):
+    file_name = os.path.basename(mail_path)
+    if os.path.exists(folder_path + file_name):
+        return False
+    shutil.copy(mail_path, folder_path + file_name)
+    return True
 
-    shutil.move(mail, mail_folder)
 
-
-def get_folder_path(subject, sender, body, json_file_path):
+def get_folder_path(subject, sender, body, json_file_path, user_email):
     if not os.path.exists(json_file_path):
         return "Spam"
     else:
         with open(json_file_path) as json_file:
             filters = json.load(json_file)
 
+    subject = subject.lower()
+    body = body.lower()
+    sender = sender.lower()
     folder_name = "Spam"
-    for filter_item in filters:
-        for sender_filter in filter_item["From"]["from"]:
-            if sender_filter.lower() in sender.lower():
-                folder_name = filter_item["From"]["to_folder"]
-                break
-        for subject_filter in filter_item["Subject"]["subject"]:
-            if subject_filter.lower() in subject.lower():
-                folder_name = filter_item["Subject"]["to_folder"]
-                break
-        for content_filter in filter_item["Content"]["content"]:
-            if content_filter.lower() in body.lower():
-                folder_name = filter_item["Content"]["to_folder"]
-                break
-        for spam_filter in filter_item["Spam"]["spam"]:
-            if spam_filter.lower() in body.lower() or spam_filter.lower() in subject.lower():
-                folder_name = filter_item["Spam"]["to_folder"]
-                break
-
-    return folder_name
+    for key in filters["From"]["from"]:
+        if key.lower() in sender:
+            folder_name = filters["From"]["to_folder"]
+            break
+    for key in filters["Subject"]["subject"]:
+        if key.lower() in subject:
+            folder_name = filters["Subject"]["to_folder"]
+            break
+    for key in filters["Content"]["content"]:
+        if key.lower() in body:
+            folder_name = filters["Content"]["to_folder"]
+            break
+    for key in filters["Spam"]["spam"]:
+        if key.lower() in subject or key in body:
+            folder_name = filters["Spam"]["to_folder"]
+            break
+    
+    filter_path = os.path.join(os.path.dirname(__file__), '..', '..', "Filter", user_email, folder_name) + "\\"
+    return filter_path

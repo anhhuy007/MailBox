@@ -191,7 +191,7 @@ class InboxPage(ft.UserControl):
 
     def build(self):
         # read all json files from folder mailBox
-        folder = os.path.join(os.path.dirname(__file__), '..') + "\\mailBox"
+        folder = os.path.join(os.path.dirname(__file__), '..','mailBox')
         mail_list = []
         for file in os.listdir(folder):
             if file.endswith(".json"):
@@ -354,7 +354,7 @@ class MailApp(ft.UserControl):
     async def on_fetch_mail_clicked(self, e):
         print("Fetch email")
         # get email from server
-        client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
+        client = POP3Client.POP3CLIENT("mail1@gmail.com", "123")
         client.run_pop3()
 
         # read all json files from folder mailBox

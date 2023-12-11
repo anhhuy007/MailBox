@@ -58,8 +58,8 @@ class POP3CLIENT:
         index_dict["mail_index"] = self.mail_curr_index
         index_dict["user_email"] = self.userEmail
 
-        # open file
-        file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'mailbox_info.json')
+        #open file
+        file_path = os.path.join(os.path.dirname(__file__), '..','..','mailbox_info.json')
         open_file = open(file_path, "r+")
         # read prev index
         data = json.load(open_file)
@@ -147,3 +147,6 @@ class POP3CLIENT:
         finally:
             self.clientSocket.close()
             print("close server")
+
+
+# //----------------------------------------------------------------------

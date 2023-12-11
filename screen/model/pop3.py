@@ -59,7 +59,7 @@ class POP3CLIENT:
         index_dict["user_email"] = self.userEmail
 
         #open file
-        file_path = os.path.join(os.path.dirname(__file__), '..','..','mailBox', f"{self.userEmail}",'mailbox_info.json')
+        file_path = os.path.join(os.path.dirname(__file__), '..','..','mailbox_info.json')
         open_file = open(file_path, "r+")
         # read prev index
         data = json.load(open_file)

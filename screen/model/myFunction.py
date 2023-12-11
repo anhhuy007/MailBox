@@ -129,8 +129,6 @@ def init_user_email_box(user_name):
         os.makedirs(user_folder)
 
     
-    
-    
     sub_folders = ["Important", "Project", "Work", "Spam","Others"]
     for folder in sub_folders:
         folder_path = os.path.join(user_folder, folder)
@@ -141,7 +139,7 @@ def init_user_email_box(user_name):
     json_content = {
         "filter": [
             {
-                "from": ["ahihi@testing.com", "ahuu@testing.com"],
+                "sender": ["ahihi@testing.com", "ahuu@testing.com"],
                 "to_folder": "Project"
             },
             {
@@ -173,13 +171,12 @@ def move_mail(mail, folder_name):
 
 
 def get_folder_path(subject, sender, body, json_file_path):
-    
     if (not os.path.exists(json_file_path)):
-        return "Others"
+        return "Spam"
     else:
         with open(json_file_path) as json_file:
             filters = json.load(json_file)
-
+    folder_name = "Spam"
     if(filters["filter"]):
         for filter in filters["filter"]:
             if("sender" in filter):

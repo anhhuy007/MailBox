@@ -358,7 +358,7 @@ class MailApp(ft.UserControl):
         client.run_pop3()
 
         # read all json files from folder mailBox
-        folder = os.path.join(os.path.dirname(__file__), '..') + "\\mailBox"
+        folder = os.path.join(os.path.dirname(__file__), '..', "mailBox","mail1@gmail.com","Inbox" ) 
         mail_list = []
         for file in os.listdir(folder):
             if file.endswith(".json"):

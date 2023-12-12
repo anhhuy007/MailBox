@@ -74,11 +74,63 @@ def toCmdProcces(method):
 
 # print ("ans = ", b)
 
-list_str = "a"
-# list_str = ", ".join(list)
-list_str = list_str.split(", ")
-print(list_str)
+# list_str = "a"
+# # list_str = ", ".join(list)
+# list_str = list_str.split(", ")
+# print(list_str)
 
-print (len(list_str))
+# print (len(list_str))
 
 # file_path = os.path.join(os.path.dirname(__file__), '..','..','test-attachment', '{}'.format(file_name))
+
+def init_user_email_box(user_name):
+    user_folder = os.path.join(os.path.dirname(__file__), '..', '..',"mailBox",user_name) + "\\"
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
+
+
+
+    filter_config_path = os.path.join(user_folder, 'config.json')
+
+    config_dict = {}
+
+    general_list = {
+        "user_name": user_name,
+        "password": "123",
+        "mail_server": "127.0.0.1",
+        "smtp_port": "2225",
+        "pop3_port": "3335",
+        "auto_load": "20"
+    }
+    filter_list = {
+        "From": {
+            "key": ["ahihi@testing.com", "ahuu@testing.com"],
+            "to_folder": "Project"
+        },
+        "Subject": {
+            "key": ["urgent", "ASAP"],
+            "to_folder": "Important"
+        },
+        "Content": {
+            "key": ["report", "meeting"],
+            "to_folder": "Work"
+        },
+        "Spam": {
+            "key": ["virus", "hack", "crack"],
+            "to_folder": "Spam"
+        }
+    }
+    config_dict["General"] = general_list
+    config_dict["Filter"] = filter_list
+    config_dict["mail_index"] = "0"
+
+
+    for folder in filter_list:
+        folder_path = os.path.join(user_folder, folder)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+    with open(filter_config_path, 'w') as json_file:
+        json.dump(config_dict, json_file, indent=4)
+
+    return filter_config_path

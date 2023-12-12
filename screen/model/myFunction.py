@@ -36,7 +36,7 @@ def getFileName(timeInfo):
     return fileName
 
 
-def save_mail(parsed_email, user_email):
+def save_mail(parsed_email, user_email, filter_config_path):
     try:
         file_list = []
         attach = {}
@@ -79,13 +79,13 @@ def save_mail(parsed_email, user_email):
         dataDict["seen"] = 0
         dataDict["file_saved"] = 0
         # save File
-        save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\"
+        save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..',"mailBox",user_email,"Inbox") + "\\"
         save_mail_path = save_mail_folder + getFileName(dateInfo) + ".json"
         # print (save_mail_path + "====================================")
         outputFile = open(save_mail_path,"w")
         json.dump(dataDict,outputFile,indent= 6)
         outputFile.close()
-        filter_config_path = init_user_email_box(user_email)
+        
         folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path, user_email)
         move_mail(save_mail_path, folder_path)
 
@@ -133,38 +133,52 @@ def seen_mail(file_name):
 
 # ////////////////////////////////////////////////////////////////////////
 def init_user_email_box(user_name):
-    user_folder = user_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\Filter\\" + user_name+ "\\"
+    user_folder = os.path.join(os.path.dirname(__file__), '..', '..',"mailBox",user_name)
     if not os.path.exists(user_folder):
         os.makedirs(user_folder)
 
-    sub_folders = ["Important", "Project", "Work", "Spam"]
-    for folder in sub_folders:
-        folder_path = os.path.join(user_folder, folder)
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-
     filter_config_path = os.path.join(user_folder, 'config.json')
-    json_content = {
-        "From": {
-            "from": ["ahihi@testing.com", "ahuu@testing.com"],
-            "to_folder": "Project"
-        },
-        "Subject": {
-            "subject": ["urgent", "ASAP"],
-            "to_folder": "Important"
-        },
-        "Content": {
-            "content": ["report", "meeting"],
-            "to_folder": "Work"
-        },
-        "Spam": {
-            "spam": ["virus", "hack", "crack"],
-            "to_folder": "Spam"
-        }
-    }
+    if not os.path.exists(filter_config_path): #check file already exist
+        config_dict = {}
 
-    with open(filter_config_path, 'w') as json_file:
-        json.dump(json_content, json_file, indent=4)
+        general_list = {
+            "user_name": user_name,
+            "password": "123",
+            "mail_server": "127.0.0.1",
+            "smtp_port": "2225",
+            "pop3_port": "3335",
+            "auto_load": "20"
+        }
+        filter_list = {
+            "From": {
+                "key": ["ahihi@testing.com", "ahuu@testing.com"],
+                "to_folder": "Project"
+            },
+            "Subject": {
+                "key": ["urgent", "ASAP"],
+                "to_folder": "Important"
+            },
+            "Content": {
+                "key": ["report", "meeting"],
+                "to_folder": "Work"
+            },
+            "Spam": {
+                "key": ["virus", "hack", "crack"],
+                "to_folder": "Spam"
+            }
+        }
+        config_dict["General"] = general_list
+        config_dict["Filter"] = filter_list
+        config_dict["mail_index"] = "0"
+
+        with open(filter_config_path, 'w') as json_file:
+            json.dump(config_dict, json_file, indent=4)
+
+        for folder in ["Project", "Important", "Work", "Spam", "Inbox", "Other"]:
+            folder_path = os.path.join(user_folder, folder)
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+
 
     return filter_config_path
 
@@ -179,32 +193,35 @@ def move_mail(mail_path, folder_path):
 
 
 def get_folder_path(subject, sender, body, json_file_path, user_email):
+
+    filter_path = os.path.join(os.path.dirname(__file__), '..', '..', "mailBox", user_email) + "\\"
     if not os.path.exists(json_file_path):
-        return "Spam"
+        return filter_path + "Spam\\"
     else:
         with open(json_file_path) as json_file:
-            filters = json.load(json_file)
+            data_dict = json.load(json_file)
 
     subject = subject.lower()
     body = body.lower()
     sender = sender.lower()
-    folder_name = "Spam"
-    for key in filters["From"]["from"]:
+    filters = data_dict["Filter"]
+    folder_name = "Other"
+    for key in filters["From"]["key"]:
         if key.lower() in sender:
             folder_name = filters["From"]["to_folder"]
             break
-    for key in filters["Subject"]["subject"]:
+    for key in filters["Subject"]["key"]:
         if key.lower() in subject:
             folder_name = filters["Subject"]["to_folder"]
             break
-    for key in filters["Content"]["content"]:
+    for key in filters["Content"]["key"]:
         if key.lower() in body:
             folder_name = filters["Content"]["to_folder"]
             break
-    for key in filters["Spam"]["spam"]:
+    for key in filters["Spam"]["key"]:
         if key.lower() in subject or key in body:
             folder_name = filters["Spam"]["to_folder"]
             break
     
-    filter_path = os.path.join(os.path.dirname(__file__), '..', '..', "Filter", user_email, folder_name) + "\\"
-    return filter_path
+
+    return filter_path + folder_name + "\\"

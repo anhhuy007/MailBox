@@ -1,19 +1,19 @@
-Content-Type: multipart/mixed; boundary="===============2913430737206211278=="
+Content-Type: multipart/mixed; boundary="===============6544117436436320251=="
 MIME-Version: 1.0
-date: 17:30:55 11/12/2023
+date: 15:40:14 12/12/2023
 sender: codingAkerman@fit.hcmus.edu.vn
 to: mail1@gmail.com
 cc: 
 bcc: 
-subject: check Work fileterr
+subject: ASAP MMM
 
---===============2913430737206211278==
+--===============6544117436436320251==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-report, meeting new people, word file
---===============2913430737206211278==
+123 WWORD
+--===============6544117436436320251==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -2437,4 +2437,4 @@ ZC9mb250VGFibGUueG1sUEsBAi0AFAAGAAgAAAAhAPe6h+iLAQAACwMAABEAAAAAAAAAAAAAAAAA
 MxECAGRvY1Byb3BzL2NvcmUueG1sUEsBAi0AFAAGAAgAAAAhANGdJ3zaAQAA2AMAABAAAAAAAAAA
 AAAAAAAA9RMCAGRvY1Byb3BzL2FwcC54bWxQSwUGAAAAAAwADAAFAwAABRcCAAAA
 
---===============2913430737206211278==--
+--===============6544117436436320251==--

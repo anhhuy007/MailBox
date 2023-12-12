@@ -3,6 +3,10 @@ import os
 from mail_content_view import MailInfo
 from mail_item_view import MailItemView
 
+import sys
+sys.path.append('D:\MailBox\screen\model')
+from model import pop3 as POP3Client
+from model import myFunction
 
 def FilterPage():
     def getDirectoryList(current_directory: str):
@@ -10,6 +14,35 @@ def FilterPage():
         return subdirectories
 
     class FilterPage(ft.UserControl):
+
+        async def apply_filter(self, e):
+            print("Fetch email")
+            # get email from server
+            self.client.run_pop3()
+
+            # read all json files from folder mailBox
+            folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', 'hahuy@fitus.edu.vn', str(self.filter_option.value))
+            mail_list = []
+            for file in os.listdir(folder):
+                if file.endswith(".json"):
+                    mail_list.append(file)
+
+            # sort mail_list by date
+            mail_list.sort(key=lambda x: os.path.getmtime(folder + "/" + x), reverse=True)
+
+            # clear inbox page
+            self.mails.controls.clear()
+
+            # add new mail to inbox page
+            for file in mail_list:
+                with open(folder + "/" + file, "r") as json_file:
+                    data = json_file.read()
+                    mail_info = MailInfo.from_json(data)
+                    mail = MailItemView(mail_info)
+                    self.mails.controls.append(mail)
+
+            await self.mails.update_async()
+
         def __init__(self):
             super().__init__()
             self.mails = ft.Column(
@@ -27,6 +60,7 @@ def FilterPage():
             self.options = getDirectoryList("D:\MailBox\MailBox\hahuy@fitus.edu.vn")
             for option in self.options:
                 self.filter_option.options.append(ft.dropdown.Option(option))
+            self.client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
 
         def build(self):
             # read all json files from folder mailBox
@@ -111,6 +145,7 @@ def FilterPage():
                                     "Apply",
                                     width=100,
                                     height=40,
+                                    on_click=self.apply_filter
                                 )
                             ]
                         ),

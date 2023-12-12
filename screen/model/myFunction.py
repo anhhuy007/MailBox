@@ -121,7 +121,7 @@ def save_attach(file_name, destination_path):
 
 def seen_mail(file_name):
     try:
-        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\" + file_name + '.json'
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\hahuy@fitus.edu.vn\\Inbox\\" + file_name + '.json'
         dataDict = json.load(open(file_path))
         dataDict["seen"] = 1
         outputFile = open(file_path, "w")

@@ -4,7 +4,7 @@ from mail_content_view import MailInfo
 from model import myFunction
 
 
-def MailItemView(mail_info: MailInfo):
+def MailItemView(mail_info: MailInfo, user_email: str):
     def getDate(date):
         # raw data: "21:46:55 07/12/2023"
         # return: "07/12/2023"
@@ -13,14 +13,14 @@ def MailItemView(mail_info: MailInfo):
     class MailItemView(ft.UserControl):
         async def seen_mail_clicked(self, e):
             print("seen_mail_clicked")
-            myFunction.seen_mail(mail_info.id, mail_info.subject, mail_info.sender, mail_info.body, "hahuy@fitus.edu.vn")
+            myFunction.seen_mail(mail_info.id, mail_info.subject, mail_info.sender, mail_info.body, user_email)
             self.seen_mail_status.value = True
             await self.seen_mail_status.update_async()
 
         def __init__(self):
             super().__init__()
             self.mail_info = mail_info
-            self.email_detail = MailContentView.MailContentView(self.mail_info, self.seen_mail_clicked)
+            self.email_detail = MailContentView.MailContentView(self.mail_info, self.seen_mail_clicked, user_email)
             self.email_detail.open = False
             self.seen_mail_status = ft.Checkbox(
                 value=True if self.mail_info.seen == 1 else False,

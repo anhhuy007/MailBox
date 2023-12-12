@@ -96,9 +96,9 @@ def save_mail(parsed_email, user_email, filter_config_path):
     return True
 
 
-def save_attach(file_name, destination_path):
+def save_attach(file_name, destination_path, user_email):
     try:
-        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\hahuy@fitus.edu.vn\\Inbox\\" + file_name + '.json'
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'MailBox', user_email, 'Inbox\\') + file_name + '.json'
         dataDict = json.load(open(file_path))
         file_list = dataDict["file_list"]
         dateInfo = dataDict["date"]
@@ -122,7 +122,7 @@ def save_attach(file_name, destination_path):
 def seen_mail(mail_id, mail_subject, mail_sender, mail_body, user_email):
     try:
         # mark seen mail in Inbox
-        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\hahuy@fitus.edu.vn\\Inbox\\" + mail_id + '.json'
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..', 'MailBox', user_email, 'Inbox\\') + mail_id + '.json'
         dataDict = json.load(open(file_path))
         dataDict["seen"] = 1
         outputFile = open(file_path, "w")
@@ -130,8 +130,8 @@ def seen_mail(mail_id, mail_subject, mail_sender, mail_body, user_email):
         outputFile.close()
 
         # mark seen mail in others folder
-        file_config_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\hahuy@fitus.edu.vn\\config.json"
-        file_path2 = get_folder_path(mail_subject, mail_sender, mail_body, file_config_path, user_email) + mail_id + '.json'
+        file_config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'MailBox', user_email, 'config.json')
+        file_path2 = get_folder_path(mail_subject, mail_sender, mail_body, file_config_path, user_email,) + mail_id + '.json'
         dataDict = json.load(open(file_path2))
         dataDict["seen"] = 1
         outputFile = open(file_path2, "w")

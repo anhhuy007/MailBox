@@ -1,6 +1,5 @@
-import random
-
 import flet as ft
+import login as Login
 import mail_compose_view as MailComposeView
 import mail_item_view as MailItemView
 import inbox_mail_view as InboxMailView
@@ -12,7 +11,7 @@ import sys
 import asyncio
 
 # Add a directory to sys.path
-sys.path.append(os.path.join(os.path.dirname(__file__),"model\\" ))   # noqa
+sys.path.append(os.path.join(os.path.dirname(__file__), "model\\"))  # noqa
 from model import pop3 as POP3Client
 from model import myFunction
 
@@ -118,11 +117,11 @@ def ComposeButton():
 
 class AppBody(ft.UserControl):
 
-    def __init__(self):
+    def __init__(self, user_email: str, user_password: str):
         super().__init__()
         self.inbox_page = InboxMailView.InboxPage()
-        self.spam_page = SpamMailView.SpamPage()
-        self.filter_page = FilterMailView.FilterPage()
+        self.spam_page = SpamMailView.SpamPage(user_email)
+        self.filter_page = FilterMailView.FilterPage(user_email, user_password)
         self.inbox_page.mails.controls.clear()
         self.page_number = 0
         self.currentPage = ft.Container()
@@ -194,7 +193,7 @@ class MailApp(ft.UserControl):
         self.client.run_pop3()
 
         # read all json files from folder mailBox
-        folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', 'hahuy@fitus.edu.vn', 'Inbox')
+        folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', self.user_email, 'Inbox')
         mail_list = []
         for file in os.listdir(folder):
             if file.endswith(".json"):
@@ -211,7 +210,7 @@ class MailApp(ft.UserControl):
             with open(folder + "/" + file, "r") as json_file:
                 data = json_file.read()
                 mail_info = MailInfo.from_json(data)
-                mail = MailItemView.MailItemView(mail_info)
+                mail = MailItemView.MailItemView(mail_info, self.user_email)
                 self.app_body.inbox_page.mails.controls.append(mail)
 
         await self.app_body.inbox_page.mails.update_async()
@@ -222,11 +221,13 @@ class MailApp(ft.UserControl):
             await self.on_fetch_mail_clicked(None)
             await asyncio.sleep(10)  # Sleep for 10 minutes
 
-    def __init__(self):
+    def __init__(self, user_email, user_password):
         super().__init__()
         self.app_header = AppHeader(self.on_fetch_mail_clicked)
-        self.app_body = AppBody()
-        self.client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
+        self.app_body = AppBody(user_email, user_password)
+        self.user_email = user_email
+        self.user_password = user_password
+        self.client = POP3Client.POP3CLIENT(user_email, user_password)
 
     async def update_async(self):
         await self.app_body.update_async()
@@ -249,6 +250,17 @@ class MailApp(ft.UserControl):
 
 
 async def main(page: ft.Page):
+    async def login():
+        await page.clean_async()
+        myFunction.init_user_email_box(login_page.user_email.value)
+        mail_app = MailApp(login_page.user_email.value, login_page.user_password.value)
+        await page.add_async(mail_app)
+        mail_app_async = asyncio.gather(
+            asyncio.create_task(mail_app.update_async()),
+            asyncio.create_task(mail_app.refresh_inbox())
+        )
+        await mail_app_async
+
     page.theme_mode = ft.ThemeMode.LIGHT
     page.title = "MailBox"
     page.scroll = ft.ScrollMode.ADAPTIVE
@@ -256,19 +268,13 @@ async def main(page: ft.Page):
         "Kanit": "https://raw.githubusercontent.com/google/fonts/master/ofl/kanit/Kanit-Bold.ttf",
         "Open Sans": "/fonts/OpenSans-Regular.ttf"
     }
-
     page.window_resizable = False
-
     page.theme = ft.Theme(font_family="Open Sans")
-    myFunction.init_user_email_box("hahuy@fitus.edu.vn")
-    mail_app = MailApp()
-    await page.add_async(mail_app)
 
-    mail_app_async = asyncio.gather(
-        asyncio.create_task(mail_app.update_async()),
-        asyncio.create_task(mail_app.refresh_inbox())
+    login_page = Login.LoginScreen(login)
+    await page.add_async(login_page)
+    await asyncio.gather(
+        asyncio.create_task(login_page.update_async()),
     )
-    await mail_app_async
-
 
 ft.app(main)

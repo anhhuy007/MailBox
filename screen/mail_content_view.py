@@ -61,7 +61,7 @@ class MailInfo:
         return f"MailInfo({self.id}, {self.user_email}, {self.date}, {self.sender}, {self.to}, {self.cc}, {self.bcc}, {self.subject}, {self.body}, {self.file_num}, {self.file_list}, {self.seen}, {self.file_saved})"
 
 
-def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
+def MailContentView(mail_info: MailInfo, _seen_mail_clicked, user_email):
     def getAttachmentsName(file_list: List[FileAttachment]):
         ans: str = ""
 
@@ -82,7 +82,7 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
             print("On save file result")
             self.save_file_path = e.path if e.path else "Canceled!"
             print(f"Destination path: {e.path}")
-            myFunction.save_attach(mail_info.id, self.save_file_path)
+            myFunction.save_attach(mail_info.id, self.save_file_path, user_email)
 
         async def download_attachments(self, e):
             print("download_attachments")
@@ -101,7 +101,7 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
 
         async def seen_mail_clicked(self, e):
             print("seen_mail_clicked")
-            myFunction.seen_mail(mail_info.id, mail_info.subject, mail_info.sender, mail_info.body, "hahuy@fitus.edu.vn")
+            myFunction.seen_mail(mail_info.id, mail_info.subject, mail_info.sender, mail_info.body, user_email)
             await _seen_mail_clicked(e)
 
         def get_receiver_list(self):

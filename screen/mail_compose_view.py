@@ -102,6 +102,9 @@ def MailComposeView():
 
         # happens when example is removed from the page (when user chooses different control group on the navigation rail)
         async def will_unmount_async(self):
+            self.selected_files.value = ""
+            await self.page.overlay.remove(self.file_size_overflow_dialog)
+            await self.page.overlay.remove(self.pick_file_dialog)
             await self.page.overlay.remove(self.content)
             await self.page.update_async()
 

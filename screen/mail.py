@@ -263,6 +263,7 @@ async def main(page: ft.Page):
     mail_app = MailApp()
     await page.add_async(mail_app)
 
+    myFunction.init_user_email_box("hahuy@fitus.edu.vn")
     mail_app_async = asyncio.gather(
         asyncio.create_task(mail_app.update_async()),
         asyncio.create_task(mail_app.refresh_inbox())

@@ -14,6 +14,7 @@ import asyncio
 sys.path.append(os.path.join(os.path.dirname(__file__), "model\\"))  # noqa
 from model import pop3 as POP3Client
 from model import myFunction
+import json
 
 
 def getDate(date):
@@ -27,8 +28,6 @@ class AppHeader(ft.UserControl):
     def __init__(self, _on_fetch_email_clicked):
         super().__init__()
         self.on_fetch_email_clicked = _on_fetch_email_clicked
-
-    def build(self):
         self.iconTitle = ft.Row(
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=10,
@@ -43,6 +42,23 @@ class AppHeader(ft.UserControl):
             ]
         )
 
+    async def on_sign_out_clicked(self, e):
+        print("Sign out")
+        # clear authentication_info.json
+        authen_info_path = os.path.join(os.path.dirname(__file__), '..', 'authentication_info.json')
+        with open(authen_info_path, "w") as json_file:
+            data_dict_ = {
+                "user_email": "",
+                "user_password": ""
+            }
+            json.dump(data_dict_, json_file)
+            # close file
+            json_file.close()
+
+        # exit app
+        await self.page.window_destroy_async()
+
+    def build(self):
         return ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -69,9 +85,12 @@ class AppHeader(ft.UserControl):
                             on_click=self.on_fetch_email_clicked
 
                         ),
-                        ft.CircleAvatar(
-                            foreground_image_url="https://sohanews.sohacdn.com/thumb_w/1000/160588918557773824/2021/9/14/photo1631588006082-16315880063578503538.jpg",
-                            content=ft.Text("User")
+                        ft.Container(
+                            on_click=self.on_sign_out_clicked,
+                            content = ft.CircleAvatar(
+                                foreground_image_url="https://sohanews.sohacdn.com/thumb_w/1000/160588918557773824/2021/9/14/photo1631588006082-16315880063578503538.jpg",
+                                content=ft.Text("User"),
+                            )
                         )
                     ]
                 )
@@ -119,7 +138,7 @@ class AppBody(ft.UserControl):
 
     def __init__(self, user_email: str, user_password: str):
         super().__init__()
-        self.inbox_page = InboxMailView.InboxPage()
+        self.inbox_page = InboxMailView.InboxPage(user_email)
         self.spam_page = SpamMailView.SpamPage(user_email)
         self.filter_page = FilterMailView.FilterPage(user_email, user_password)
         self.inbox_page.mails.controls.clear()
@@ -251,6 +270,18 @@ class MailApp(ft.UserControl):
 
 async def main(page: ft.Page):
     async def login():
+        # save login info to authentication_info.json
+        authen_info_path = os.path.join(os.path.dirname(__file__), '..', 'authentication_info.json')
+        with open(authen_info_path, "w") as json_file:
+            data_dict_ = {
+                "user_email": login_page.user_email.value,
+                "user_password": login_page.user_password.value
+            }
+            json.dump(data_dict_, json_file)
+            # close file
+            json_file.close()
+
+        # init user email box
         await page.clean_async()
         myFunction.init_user_email_box(login_page.user_email.value)
         mail_app = MailApp(login_page.user_email.value, login_page.user_password.value)
@@ -273,8 +304,22 @@ async def main(page: ft.Page):
 
     login_page = Login.LoginScreen(login)
     await page.add_async(login_page)
-    await asyncio.gather(
-        asyncio.create_task(login_page.update_async()),
-    )
+
+    # read previous login info from authentication_info.json
+    authen_info_path = os.path.join(os.path.dirname(__file__), '..', 'authentication_info.json')
+    with open(authen_info_path, "r") as json_file:
+        data_ = json_file.read()
+        data_dict_ = json.loads(data_)
+        if data_dict_["user_email"] != "":
+            login_page.user_email.value = data_dict_["user_email"]
+            login_page.user_password.value = data_dict_["user_password"]
+            # close file
+            json_file.close()
+            await login()
+        else:
+            await asyncio.gather(
+                asyncio.create_task(login_page.update_async()),
+            )
+
 
 ft.app(main)

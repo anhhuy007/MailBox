@@ -23,7 +23,7 @@ def FilterPage(user_email, user_password):
             self.client.run_pop3()
 
             # read all json files from folder mailBox
-            folder = os.path.join(os.path.dirname(__file__), '..', '..', 'MailBox', user_email, str(self.filter_option.value))
+            folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', user_email, str(self.filter_option.value))
             mail_list = []
             for file in os.listdir(folder):
                 if file.endswith(".json"):
@@ -40,7 +40,7 @@ def FilterPage(user_email, user_password):
                 with open(folder + "/" + file, "r") as json_file:
                     data = json_file.read()
                     mail_info = MailInfo.from_json(data)
-                    mail = MailItemView(mail_info)
+                    mail = MailItemView(mail_info, user_email)
                     self.mails.controls.append(mail)
 
             await self.mails.update_async()

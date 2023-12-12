@@ -5,6 +5,7 @@ import mail_compose_view as MailComposeView
 import mail_item_view as MailItemView
 import inbox_mail_view as InboxMailView
 import filter_mail_view as FilterMailView
+import spam_mail_view as SpamMailView
 from mail_content_view import MailInfo, FileAttachment
 import os
 import sys
@@ -120,7 +121,7 @@ class AppBody(ft.UserControl):
     def __init__(self):
         super().__init__()
         self.inbox_page = InboxMailView.InboxPage()
-        self.spam_page = ft.Container(content=ft.Text("Spam"))
+        self.spam_page = SpamMailView.SpamPage()
         self.filter_page = FilterMailView.FilterPage()
         self.inbox_page.mails.controls.clear()
         self.page_number = 0

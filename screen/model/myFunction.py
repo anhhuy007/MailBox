@@ -82,17 +82,19 @@ def save_mail(parsed_email, user_email):
         save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\"
         save_mail_path = save_mail_folder + getFileName(dateInfo) + ".json"
         # print (save_mail_path + "====================================")
-        outputFile = open(save_mail_path,"w")
-        json.dump(dataDict,outputFile,indent= 6)
+        outputFile = open(save_mail_path, "w")
+        json.dump(dataDict, outputFile, indent=6)
         outputFile.close()
         filter_config_path = init_user_email_box(user_email)
-        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path, user_email)
+        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path,
+                                      user_email)
         move_mail(save_mail_path, folder_path)
 
     except Exception as e:
         print(f"Error occurred: {e}")
         return False
     return True
+
 
 def save_attach(file_name, destination_path):
     try:
@@ -133,7 +135,7 @@ def seen_mail(file_name):
 
 # ////////////////////////////////////////////////////////////////////////
 def init_user_email_box(user_name):
-    user_folder = user_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\Filter\\" + user_name+ "\\"
+    user_folder = user_folder = os.path.join(os.path.dirname(__file__), '..', '..') + "\\Filter\\" + user_name + "\\"
     if not os.path.exists(user_folder):
         os.makedirs(user_folder)
 
@@ -205,6 +207,6 @@ def get_folder_path(subject, sender, body, json_file_path, user_email):
         if key.lower() in subject or key in body:
             folder_name = filters["Spam"]["to_folder"]
             break
-    
+
     filter_path = os.path.join(os.path.dirname(__file__), '..', '..', "Filter", user_email, folder_name) + "\\"
     return filter_path

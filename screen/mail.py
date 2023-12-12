@@ -12,7 +12,7 @@ import sys
 import asyncio
 
 # Add a directory to sys.path
-sys.path.append('D:\MailBox\screen\model')
+sys.path.append(os.path.join(os.path.dirname(__file__),"model\\" ))   # noqa
 from model import pop3 as POP3Client
 from model import myFunction
 
@@ -260,8 +260,10 @@ async def main(page: ft.Page):
     page.window_resizable = False
 
     page.theme = ft.Theme(font_family="Open Sans")
+    myFunction.init_user_email_box("hahuy@fitus.edu.vn")
     mail_app = MailApp()
     await page.add_async(mail_app)
+
 
     mail_app_async = asyncio.gather(
         asyncio.create_task(mail_app.update_async()),

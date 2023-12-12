@@ -94,7 +94,7 @@ def save_mail(parsed_email, user_email):
         return False
     return True
 
-def save_attach(file_path):
+def save_attach(file_name, destination_path):
     try:
         file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\" + file_name + '.json'
         dataDict = json.load(open(file_path))

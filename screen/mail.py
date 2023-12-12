@@ -1,13 +1,13 @@
 import random
 
 import flet as ft
-import mail_content_view as MailContentView
 import mail_compose_view as MailComposeView
+import mail_item_view as MailItemView
+import inbox_mail_view as InboxMailView
+import filter_mail_view as FilterMailView
 from mail_content_view import MailInfo, FileAttachment
 import os
 import sys
-import threading
-import time
 import asyncio
 
 # Add a directory to sys.path
@@ -21,12 +21,6 @@ def getDate(date):
     # return: "07/12/2023"
     return date[9:]
 
-
-# def on_fetch_email_clicked(e):
-#     print("Fetch email")
-#     # get email from server
-#     client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
-#     client.run_pop3()
 
 class AppHeader(ft.UserControl):
 
@@ -86,175 +80,6 @@ class AppHeader(ft.UserControl):
         )
 
 
-class Mail(ft.UserControl):
-
-    async def seen_mail_clicked(self, e):
-        print("seen_mail_clicked")
-        myFunction.seen_mail(self.mail_info.id)
-        self.seen_mail_status.value = True
-        await self.seen_mail_status.update_async()
-
-    def __init__(self, mail_info: MailInfo):
-        super().__init__()
-        self.mail_info = mail_info
-        self.email_detail = MailContentView.MailContentView(self.mail_info, self.seen_mail_clicked)
-        self.email_detail.open = False
-        self.seen_mail_status = ft.Checkbox(
-            value=True if self.mail_info.seen == 1 else False,
-            disabled=True
-        )
-
-    async def show_email_detail(self, e):
-        print("Show email detail")
-        self.email_detail.open = True
-        await self.email_detail.update_async()
-
-    async def close_bs(self, e):
-        self.email_detail.open = False
-        await self.email_detail.update_async()
-
-    async def did_mount_async(self):
-        self.page.overlay.append(self.email_detail)
-        await self.page.update_async()
-
-    async def will_unmount_async(self):
-        self.page.overlay.remove(self.email_detail)
-        await self.page.update_async()
-
-    def build(self):
-        return ft.Container(
-            bgcolor=ft.colors.GREY_100,
-            padding=ft.padding.all(5),
-            content=ft.Row(
-                width=1050,
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                controls=[
-                    ft.Row(
-                        controls=[
-                            ft.Container(
-                                margin=ft.margin.only(left=15),
-                                content=self.seen_mail_status,
-                                width=10
-                            ),
-
-                            ft.Container(
-                                margin=ft.margin.only(left=50),
-                                content=ft.Text(
-                                    value=self.mail_info.sender,
-                                    width=180,
-                                    max_lines=1,
-                                    overflow=ft.TextOverflow.ELLIPSIS
-                                ),
-                            ),
-
-                            ft.Container(
-                                margin=ft.margin.only(left=15),
-                                content=ft.Text(
-                                    value=str(self.mail_info.subject),
-                                    width=260,
-                                    max_lines=1,
-                                    overflow=ft.TextOverflow.ELLIPSIS
-                                ),
-                            ),
-
-                            ft.Container(
-                                margin=ft.margin.only(left=15),
-                                content=ft.Text(
-                                    value=str(self.mail_info.body),
-                                    width=360,
-                                    max_lines=1,
-                                    overflow=ft.TextOverflow.ELLIPSIS
-                                ),
-                            ),
-
-                            ft.Container(
-                                margin=ft.margin.only(left=15),
-                                content=ft.Text(
-                                    value=getDate(self.mail_info.date),
-                                    width=100,
-                                    max_lines=1,
-                                    overflow=ft.TextOverflow.ELLIPSIS
-                                ),
-                            ),
-                        ]
-                    )
-                ]
-            ),
-            on_click=self.show_email_detail
-        )
-
-
-class InboxPage(ft.UserControl):
-
-    def __init__(self):
-        super().__init__()
-        self.mails = ft.Column(
-            spacing=3,
-            scroll=ft.ScrollMode.ALWAYS
-        )
-
-    def build(self):
-        # read all json files from folder mailBox
-        folder = os.path.join(os.path.dirname(__file__), '..', 'mailBox')
-        mail_list = []
-        for file in os.listdir(folder):
-            if file.endswith(".json"):
-                mail_list.append(file)
-
-        # sort mail_list by date
-        mail_list.sort(key=lambda x: os.path.getmtime(folder + "/" + x), reverse=True)
-        self.mails.controls.clear()
-        for file in mail_list:
-            with open(folder + "/" + file, "r") as json_file:
-                data = json_file.read()
-                mail_info = MailInfo.from_json(data)
-                mail = Mail(mail_info)
-                self.mails.controls.append(mail)
-
-        inbox_title = ft.Container(padding=ft.padding.only(top=10, left=5), content=ft.Row(width=1050, controls=[
-            ft.Container(
-                margin=ft.margin.only(left=15),
-                width=10
-            ),
-
-            ft.Container(
-                margin=ft.margin.only(left=50),
-                content=ft.Text("Sender", width=180, weight=ft.FontWeight.BOLD),
-            ),
-
-            ft.Container(
-                margin=ft.margin.only(left=15),
-                content=ft.Text("Title", width=260, weight=ft.FontWeight.BOLD),
-            ),
-
-            ft.Container(
-                margin=ft.margin.only(left=15),
-                content=ft.Text("Content", width=360, weight=ft.FontWeight.BOLD),
-            ),
-
-            ft.Container(
-                margin=ft.margin.only(left=15),
-                content=ft.Text("Date", width=100, weight=ft.FontWeight.BOLD),
-            )
-
-        ]))
-
-        return ft.Card(
-            elevation=10,
-            surface_tint_color=ft.colors.WHITE,
-            content=ft.Column(
-                controls=[
-                    inbox_title,
-                    ft.Container(
-                        border_radius=10,
-                        content=self.mails
-                    )
-                ]
-            )
-        )
-
-
 def ComposeButton():
     class ComposeButton(ft.FloatingActionButton):
 
@@ -264,9 +89,6 @@ def ComposeButton():
             self.text = "Compose"
             self.bs = MailComposeView.MailComposeView()
             self.on_click = self.show_bs
-
-        def bs_dismissed(self, e):
-            print("Dismissed!")
 
         async def show_bs(self, e):
             print("Show BS")
@@ -297,10 +119,12 @@ class AppBody(ft.UserControl):
 
     def __init__(self):
         super().__init__()
-        self.inbox_page = InboxPage()
-        self.spam_page = ft.Container(content=ft.Text("Spam emails"))
-        self.filter_page = ft.Container(content=ft.Text("Filter"))
+        self.inbox_page = InboxMailView.InboxPage()
+        self.spam_page = ft.Container(content=ft.Text("Spam"))
+        self.filter_page = FilterMailView.FilterPage()
         self.inbox_page.mails.controls.clear()
+        self.page_number = 0
+        self.currentPage = ft.Container()
 
     def build(self):
         # AppBody attributes
@@ -310,11 +134,13 @@ class AppBody(ft.UserControl):
             self.filter_page
         ]
 
-        currentPage = ft.Container(content=pages[0], expand=True)
+        page_ = ft.Container(content=pages[0], expand=True)
 
         # functions
         async def on_page_change(e):
-            currentPage.content = pages[e.control.selected_index]
+            page_.content = pages[e.control.selected_index]
+            self.page_number = e.control.selected_index
+            self.currentPage = pages[e.control.selected_index]
             print("Current page: ", e.control.selected_index)
             await self.update_async()
 
@@ -331,14 +157,14 @@ class AppBody(ft.UserControl):
                     label="Inbox",
                 ),
                 ft.NavigationRailDestination(
-                    icon=ft.icons.SEND_OUTLINED,
-                    selected_icon=ft.icons.SEND_ROUNDED,
-                    label="Sent"
+                    icon=ft.icons.WARNING_AMBER_ROUNDED,
+                    selected_icon=ft.icons.WARNING_ROUNDED,
+                    label="Spam"
                 ),
                 ft.NavigationRailDestination(
-                    icon=ft.icons.SETTINGS_OUTLINED,
-                    selected_icon=ft.icons.SETTINGS_ROUNDED,
-                    label="Setting"
+                    icon=ft.icons.FILTER_ALT_OUTLINED,
+                    selected_icon=ft.icons.FILTER_ALT_ROUNDED,
+                    label="Filter"
                 ),
             ],
             on_change=on_page_change
@@ -351,7 +177,7 @@ class AppBody(ft.UserControl):
             controls=[
                 rail,
                 ft.VerticalDivider(width=2, color=ft.colors.BLACK),
-                currentPage
+                page_
             ],
         )
 
@@ -359,6 +185,9 @@ class AppBody(ft.UserControl):
 class MailApp(ft.UserControl):
 
     async def on_fetch_mail_clicked(self, e):
+        if self.app_body.page_number != 0:
+            return
+
         print("Fetch email")
         # get email from server
         self.client.run_pop3()
@@ -381,7 +210,7 @@ class MailApp(ft.UserControl):
             with open(folder + "/" + file, "r") as json_file:
                 data = json_file.read()
                 mail_info = MailInfo.from_json(data)
-                mail = Mail(mail_info)
+                mail = MailItemView.MailItemView(mail_info)
                 self.app_body.inbox_page.mails.controls.append(mail)
 
         await self.app_body.inbox_page.mails.update_async()
@@ -390,7 +219,7 @@ class MailApp(ft.UserControl):
         while True:
             print("Refresh inbox")
             await self.on_fetch_mail_clicked(None)
-            await asyncio.sleep(5)  # Sleep for 10 minutes
+            await asyncio.sleep(10)  # Sleep for 10 minutes
 
     def __init__(self):
         super().__init__()

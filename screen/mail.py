@@ -258,13 +258,16 @@ def ComposeButton():
             super().__init__()
             self.icon = ft.icons.CREATE
             self.text = "Compose"
-            self.on_click = self.show_bs
             self.bs = MailComposeView.MailComposeView()
+            self.on_click = self.show_bs
 
         def bs_dismissed(self, e):
             print("Dismissed!")
 
         async def show_bs(self, e):
+            print("Show BS")
+            self.page.overlay.append(self.bs)
+            await self.page.update_async()
             self.bs.open = True
             await self.bs.update_async()
 
@@ -274,6 +277,7 @@ def ComposeButton():
 
         # happens when example is added to the page (when user chooses the BottomSheet control from the grid)
         async def did_mount_async(self):
+            print("Did mount")
             self.page.overlay.append(self.bs)
             await self.page.update_async()
 
@@ -355,8 +359,7 @@ class MailApp(ft.UserControl):
     async def on_fetch_mail_clicked(self, e):
         print("Fetch email")
         # get email from server
-        client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
-        client.run_pop3()
+        self.client.run_pop3()
 
         # read all json files from folder mailBox
         folder = os.path.join(os.path.dirname(__file__), '..') + "\\mailBox"
@@ -385,17 +388,23 @@ class MailApp(ft.UserControl):
         while True:
             print("Refresh inbox")
             await self.on_fetch_mail_clicked(None)
-            await asyncio.sleep(5)  # Sleep for 10 minutes
+            await asyncio.sleep(10)  # Sleep for 10 minutes
 
     def __init__(self):
         super().__init__()
         self.app_header = AppHeader(self.on_fetch_mail_clicked)
         self.app_body = AppBody()
         self.refresh_task = None  # Store the reference to the refresh task
+        self.client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
 
     async def did_mount_async(self):
-        self.refresh_task = asyncio.create_task(self.refresh_inbox())  # Start the refresh task
-        await self.refresh_inbox()
+        # self.refresh_task = asyncio.create_task(self.refresh_inbox())  # Start the refresh task
+        await self.app_body.inbox_page.update_async()
+        await self.update_async()
+
+    async def did_update_async(
+            self):  # Called when the example is updated (for example when the user changes the value of a control)
+        print("Did update")
         await self.app_body.inbox_page.update_async()
         await self.update_async()
 
@@ -427,7 +436,7 @@ async def main(page: ft.Page):
     page.window_resizable = False
 
     page.theme = ft.Theme(font_family="Open Sans")
-    await page.add_async(MailApp())
+    app_async = asyncio.create_task(page.add_async(MailApp()))
+    await app_async
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(ft.app(main))
+ft.app(main)

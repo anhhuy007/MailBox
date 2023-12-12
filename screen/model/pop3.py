@@ -21,6 +21,7 @@ class POP3CLIENT:
 
     def connect_server(self):
         print("Establish contact to pop3 server {} at port {}".format(self.server, self.port))
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientSocket.connect(self.serverAddr)
         # check connect fail
         recv = self.clientSocket.recv(1024).decode()

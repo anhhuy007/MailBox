@@ -14,14 +14,15 @@ class POP3CLIENT:
 
     mail_curr_index = 0
     mail_prev_index = 0
+    filter_config_path = ""
 
     def __init__(self, user_email, password):
         self.userEmail = user_email
         self.password = password
 
     def connect_server(self):
-        print("Establish contact to pop3 server {} at port {}".format(self.server, self.port))
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print("Establish contact to pop3 server {} at port {}".format(self.server, self.port))
         self.clientSocket.connect(self.serverAddr)
         # check connect fail
         recv = self.clientSocket.recv(1024).decode()
@@ -55,22 +56,18 @@ class POP3CLIENT:
         self.mail_curr_index = recv.split(" ")[1]
         print("----------Mail current index: ", self.mail_curr_index)
 
-        index_dict = {}
-        index_dict["mail_index"] = self.mail_curr_index
-        index_dict["user_email"] = self.userEmail
-
-        #open file
-        file_path = os.path.join(os.path.dirname(__file__), '..','..','mailbox_info.json')
-        open_file = open(file_path, "r+")
-        # read prev index
+        # open file
+        self.filter_config_path = myFunction.init_user_email_box(self.userEmail)  # init user email box
+        # read prev index------------------------------------------------
+        open_file = open(self.filter_config_path, "r+")
         data = json.load(open_file)
         self.mail_prev_index = data["mail_index"]
+        data["mail_index"] = self.mail_curr_index  # update mail index
         if self.mail_prev_index > self.mail_curr_index:
-            self.mail_prev_index = 0
+            print("------------------------adjust file config index")
         print("----------Mail prev index: ", self.mail_prev_index)
-        # write new index
         open_file.seek(0)  # go to the beginning of the file
-        json.dump(index_dict, open_file, indent=6)
+        json.dump(data, open_file, indent=6)
         # Truncate the file to remove any remaining content
         open_file.truncate()
         open_file.close()
@@ -84,6 +81,7 @@ class POP3CLIENT:
             raise Exception('Negative response from server. Stop program')
 
     def send_retr_cmd(self):
+
         for index in range(int(self.mail_prev_index) + 1, int(self.mail_curr_index) + 1):
             retrCmd = "RETR {}\r\n".format(index)
             self.clientSocket.send(retrCmd.encode())
@@ -110,7 +108,7 @@ class POP3CLIENT:
             dateInfo = parsed_email['date']
 
             # save mail
-            if myFunction.save_mail(parsed_email, self.userEmail):
+            if myFunction.save_mail(parsed_email, self.userEmail, self.filter_config_path):
                 print("Save mail success")
             else:
                 print("Save mail fail")
@@ -145,9 +143,10 @@ class POP3CLIENT:
             self.send_quit_cmd()
         except Exception as e:
             print("Error occurred: ", e)
+            return False, e
         finally:
             self.clientSocket.close()
             print("close server")
-
+        return True, "Run pop3 success"
 
 # //----------------------------------------------------------------------

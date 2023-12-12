@@ -24,7 +24,7 @@ def FilterPage():
                 height=60,
                 content_padding=ft.padding.only(left=15, top=5, bottom=5, right=15),
             )
-            self.options = getDirectoryList("D:\MailBox\Filter\hahuy@fitus.edu.vn")
+            self.options = getDirectoryList("D:\MailBox\MailBox\hahuy@fitus.edu.vn")
             for option in self.options:
                 self.filter_option.options.append(ft.dropdown.Option(option))
 

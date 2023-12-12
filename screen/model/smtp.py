@@ -171,10 +171,11 @@ class SMTPCLIENT:
         except Exception as e:
             print("Error occurred: ", e)
             print(traceback.format_exc())
+            return False, e
 
         finally:
-
             print("Socket closed")
+            return True, "Send mail success"
 
 
 # ===========================================================================

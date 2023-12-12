@@ -16,7 +16,7 @@ def InboxPage():
 
         def build(self):
             # read all json files from folder mailBox
-            folder = os.path.join(os.path.dirname(__file__), '..', 'mailBox')
+            folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox')
             mail_list = []
             for file in os.listdir(folder):
                 if file.endswith(".json"):

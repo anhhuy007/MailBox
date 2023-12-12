@@ -1,19 +1,19 @@
-Content-Type: multipart/mixed; boundary="===============2912893504962079795=="
+Content-Type: multipart/mixed; boundary="===============7528915014411566133=="
 MIME-Version: 1.0
-date: 15:35:02 12/12/2023
+date: 19:47:49 12/12/2023
 sender: codingAkerman@fit.hcmus.edu.vn
 to: hahuy@fitus.edu.vn
 cc: 
 bcc: 
-subject: attachment1
+subject: erq
 
---===============2912893504962079795==
+--===============7528915014411566133==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-please check this attachment. 
---===============2912893504962079795==
+erq
+--===============7528915014411566133==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -48,4 +48,4 @@ oXkuDQoJDQoJMi4gQ8O0bmcgdGjhu6ljOg0KCQktIEFWQyA9IFZDIC8gUQ0KCQktIEFGQyA9IEZD
 IC8gUQ0KCQktIEFDID0gVEMgLyBRDQoJCS0gTUMgPSANCg0KVEMgPSA1MCArIDJRDQoNCg0KDQoN
 Cg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg==
 
---===============2912893504962079795==--
+--===============7528915014411566133==--

@@ -194,7 +194,7 @@ class MailApp(ft.UserControl):
         self.client.run_pop3()
 
         # read all json files from folder mailBox
-        folder = os.path.join(os.path.dirname(__file__), '..') + "\\mailBox"
+        folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', 'hahuy@fitus.edu.vn', 'Inbox')
         mail_list = []
         for file in os.listdir(folder):
             if file.endswith(".json"):
@@ -264,8 +264,8 @@ async def main(page: ft.Page):
     await page.add_async(mail_app)
 
     mail_app_async = asyncio.gather(
-        asyncio.create_task(mail_app.refresh_inbox()),
-        asyncio.create_task(mail_app.update_async())
+        asyncio.create_task(mail_app.update_async()),
+        asyncio.create_task(mail_app.refresh_inbox())
     )
     await mail_app_async
 

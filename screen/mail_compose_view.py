@@ -65,6 +65,13 @@ def MailComposeView():
         async def pick_files_result(self, e: ft.FilePickerResultEvent):
             print("On pick files result")
 
+            if e.files is None:
+                self.selected_files.value = "No attachment"
+                await self.selected_files.update_async()
+                await self.update_async()
+                print("No file picked")
+                return
+
             # check file size <= 3mb
             total_size = 0
             for file in e.files:
@@ -94,6 +101,7 @@ def MailComposeView():
             print(f"Files path: {self.files_path}")
 
             await self.selected_files.update_async()
+            await self.update_async()
 
         async def did_mount_async(self):
             self.page.overlay.append(self.pick_file_dialog)

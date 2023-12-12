@@ -133,7 +133,6 @@ def seen_mail(file_name):
     return True
 
 
-# ////////////////////////////////////////////////////////////////////////
 def init_user_email_box(user_name):
     user_folder = os.path.join(os.path.dirname(__file__), '..', '..', "MailBox", user_name)
     if not os.path.exists(user_folder):

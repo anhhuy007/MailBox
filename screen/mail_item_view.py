@@ -41,7 +41,8 @@ def MailItemView(mail_info: MailInfo):
             await self.page.update_async()
 
         async def will_unmount_async(self):
-            self.page.overlay.remove(self.email_detail)
+            if not self.email_detail.open:
+                self.page.overlay.remove(self.email_detail)
             await self.page.update_async()
 
         def build(self):

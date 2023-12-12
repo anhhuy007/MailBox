@@ -13,7 +13,7 @@ def MailItemView(mail_info: MailInfo):
     class MailItemView(ft.UserControl):
         async def seen_mail_clicked(self, e):
             print("seen_mail_clicked")
-            myFunction.seen_mail(self.mail_info.id)
+            myFunction.seen_mail(mail_info.id, mail_info.subject, mail_info.sender, mail_info.body, "hahuy@fitus.edu.vn")
             self.seen_mail_status.value = True
             await self.seen_mail_status.update_async()
 

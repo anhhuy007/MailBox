@@ -119,12 +119,22 @@ def save_attach(file_name, destination_path):
     return True
 
 
-def seen_mail(file_name):
+def seen_mail(mail_id, mail_subject, mail_sender, mail_body, user_email):
     try:
-        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\hahuy@fitus.edu.vn\\Inbox\\" + file_name + '.json'
+        # mark seen mail in Inbox
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\hahuy@fitus.edu.vn\\Inbox\\" + mail_id + '.json'
         dataDict = json.load(open(file_path))
         dataDict["seen"] = 1
         outputFile = open(file_path, "w")
+        json.dump(dataDict, outputFile, indent=6)
+        outputFile.close()
+
+        # mark seen mail in others folder
+        file_config_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\hahuy@fitus.edu.vn\\config.json"
+        file_path2 = get_folder_path(mail_subject, mail_sender, mail_body, file_config_path, user_email) + mail_id + '.json'
+        dataDict = json.load(open(file_path2))
+        dataDict["seen"] = 1
+        outputFile = open(file_path2, "w")
         json.dump(dataDict, outputFile, indent=6)
         outputFile.close()
     except Exception as e:

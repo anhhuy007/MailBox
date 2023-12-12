@@ -101,7 +101,7 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
 
         async def seen_mail_clicked(self, e):
             print("seen_mail_clicked")
-            myFunction.seen_mail(mail_info.id)
+            myFunction.seen_mail(mail_info.id, mail_info.subject, mail_info.sender, mail_info.body, "hahuy@fitus.edu.vn")
             await _seen_mail_clicked(e)
 
         def get_receiver_list(self):
@@ -169,7 +169,22 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                     controls=[
                         ft.Text("To: "),
                         ft.Text(
-                            value=self.get_receiver_list(),
+                            value=mail_info.to,
+                            size=13,
+                            max_lines=2,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            width=550)
+                    ]
+                )
+            )
+
+            cc = ft.Container(
+                padding=ft.padding.only(top=10, bottom=0),
+                content=ft.Row(
+                    controls=[
+                        ft.Text("CC: "),
+                        ft.Text(
+                            value=mail_info.cc,
                             size=13,
                             max_lines=2,
                             overflow=ft.TextOverflow.ELLIPSIS,
@@ -263,6 +278,21 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
             self.save_file_dialog = ft.FilePicker(on_result=self.save_file_result)
             self.save_file_path = ""
 
+            mail_info_section = ft.Column(
+                spacing=0,
+                controls=[
+                    header,
+                    sender,
+                    to,
+                ]
+            )
+
+            if mail_info.cc != "":
+                mail_info_section.controls.append(cc)
+
+            mail_info_section.controls.append(date)
+            mail_info_section.controls.append(content)
+
             self.content = ft.Container(
                 padding=ft.padding.only(left=20, right=20, top=10, bottom=5),
                 height=500,
@@ -270,16 +300,7 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                 content=ft.Column(
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     controls=[
-                        ft.Column(
-                            spacing=0,
-                            controls=[
-                                header,
-                                sender,
-                                to,
-                                date,
-                                content,
-                            ]
-                        ),
+                        mail_info_section,
                         seen_and_attachment,
                     ]
                 )

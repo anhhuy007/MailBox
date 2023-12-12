@@ -11,7 +11,9 @@ def InboxPage():
             super().__init__()
             self.mails = ft.Column(
                 spacing=3,
-                scroll=ft.ScrollMode.ALWAYS
+                scroll=ft.ScrollMode.ALWAYS,
+                on_scroll_interval=0,
+                height=560
             )
 
         def build(self):

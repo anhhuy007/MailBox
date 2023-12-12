@@ -1,10 +1,35 @@
-import os
+import threading
+import flet as ft
 
-# Get the current directory
-current_directory = "D:\MailBox\Filter\hahuy@fitus.edu.vn"
+class State:
+    i = 0
 
-# Get a list of all subdirectories in the current directory
-subdirectories = [d for d in os.listdir(current_directory) if os.path.isdir(os.path.join(current_directory, d))]
+s = State()
+sem = threading.Semaphore()
 
-# Print the list of subdirectories
-print("Subdirectories in", current_directory, ":", subdirectories)
+def main(page: ft.Page):
+    def on_scroll(e: ft.OnScrollEvent):
+        if e.pixels >= e.max_scroll_extent - 100:
+            if sem.acquire(blocking=False):
+                try:
+                    for i in range(0, 10):
+                        cl.controls.append(ft.Text(f"Text line {s.i}", key=str(s.i)))
+                        s.i += 1
+                    cl.update()
+                finally:
+                    sem.release()
+
+    cl = ft.Column(
+        spacing=10,
+        height=200,
+        width=200,
+        scroll=ft.ScrollMode.ALWAYS,
+        on_scroll_interval=0,
+    )
+    for i in range(0, 50):
+        cl.controls.append(ft.Text(f"Text line {s.i}", key=str(s.i)))
+        s.i += 1
+
+    page.add(ft.Container(cl, border=ft.border.all(1)))
+
+ft.app(main)

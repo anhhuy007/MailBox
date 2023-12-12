@@ -1,9 +1,10 @@
 import flet as ft
 
 import sys
+import os
 
 # Add a directory to sys.path
-sys.path.append('D:\MailBox\screen\model')
+sys.path.append(os.path.join(os.path.dirname(__file__), "model\\"))  
 import smtp
 
 

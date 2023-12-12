@@ -4,7 +4,7 @@ from mail_content_view import MailInfo
 from mail_item_view import MailItemView
 
 import sys
-sys.path.append('D:\MailBox\screen\model')
+sys.path.append(os.path.join(os.path.dirname(__file__),"model\\" )) 
 from model import pop3 as POP3Client
 from model import myFunction
 
@@ -57,7 +57,7 @@ def FilterPage():
                 height=60,
                 content_padding=ft.padding.only(left=15, top=5, bottom=5, right=15),
             )
-            self.options = getDirectoryList("D:\MailBox\MailBox\hahuy@fitus.edu.vn")
+            self.options = getDirectoryList(os.path.join(os.path.dirname(__file__), '..', 'MailBox',"hahuy@fitus.edu.vn"))
             for option in self.options:
                 self.filter_option.options.append(ft.dropdown.Option(option))
             self.client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")

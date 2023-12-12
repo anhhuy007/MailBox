@@ -1,3 +1,5 @@
+import random
+
 import flet as ft
 import mail_content_view as MailContentView
 import mail_compose_view as MailComposeView
@@ -86,11 +88,6 @@ class AppHeader(ft.UserControl):
 
 class Mail(ft.UserControl):
 
-    async def on_email_clicked(self, e):
-        print("on click")
-        self.bs.open = True
-        await self.bs.update_async()
-
     async def seen_mail_clicked(self, e):
         print("seen_mail_clicked")
         myFunction.seen_mail(self.mail_info.id)
@@ -100,12 +97,29 @@ class Mail(ft.UserControl):
     def __init__(self, mail_info: MailInfo):
         super().__init__()
         self.mail_info = mail_info
-        self.bs = MailContentView.MailContentView(self.mail_info, self.seen_mail_clicked)
-        self.bs.open = False
+        self.email_detail = MailContentView.MailContentView(self.mail_info, self.seen_mail_clicked)
+        self.email_detail.open = False
         self.seen_mail_status = ft.Checkbox(
             value=True if self.mail_info.seen == 1 else False,
             disabled=True
         )
+
+    async def show_email_detail(self, e):
+        print("Show email detail")
+        self.email_detail.open = True
+        await self.email_detail.update_async()
+
+    async def close_bs(self, e):
+        self.email_detail.open = False
+        await self.email_detail.update_async()
+
+    async def did_mount_async(self):
+        self.page.overlay.append(self.email_detail)
+        await self.page.update_async()
+
+    async def will_unmount_async(self):
+        self.page.overlay.remove(self.email_detail)
+        await self.page.update_async()
 
     def build(self):
         return ft.Container(
@@ -167,18 +181,8 @@ class Mail(ft.UserControl):
                     )
                 ]
             ),
-            on_click=self.on_email_clicked
+            on_click=self.show_email_detail
         )
-
-    async def did_mount_async(self):
-        self.page.overlay.append(self.bs)
-        await self.page.update_async()
-
-    # happens when example is removed from the page (when user chooses different control group on the navigation rail)
-    async def will_unmount_async(self):
-        if self.bs.open:
-            self.page.overlay.remove(self.bs)
-        await self.page.update_async()
 
 
 class InboxPage(ft.UserControl):
@@ -266,8 +270,6 @@ def ComposeButton():
 
         async def show_bs(self, e):
             print("Show BS")
-            self.page.overlay.append(self.bs)
-            await self.page.update_async()
             self.bs.open = True
             await self.bs.update_async()
 
@@ -277,7 +279,6 @@ def ComposeButton():
 
         # happens when example is added to the page (when user chooses the BottomSheet control from the grid)
         async def did_mount_async(self):
-            print("Did mount")
             self.page.overlay.append(self.bs)
             await self.page.update_async()
 
@@ -297,22 +298,23 @@ class AppBody(ft.UserControl):
     def __init__(self):
         super().__init__()
         self.inbox_page = InboxPage()
+        self.spam_page = ft.Container(content=ft.Text("Spam emails"))
+        self.filter_page = ft.Container(content=ft.Text("Filter"))
         self.inbox_page.mails.controls.clear()
 
     def build(self):
         # AppBody attributes
-
         pages = [
             self.inbox_page,
-            ft.Container(content=ft.Text("Page 2")),
-            ft.Container(content=ft.Text("Page 3")),
+            self.spam_page,
+            self.filter_page
         ]
 
-        page = ft.Container(content=pages[0], expand=True)
+        currentPage = ft.Container(content=pages[0], expand=True)
 
         # functions
         async def on_page_change(e):
-            page.content = pages[e.control.selected_index]
+            currentPage.content = pages[e.control.selected_index]
             print("Current page: ", e.control.selected_index)
             await self.update_async()
 
@@ -349,7 +351,7 @@ class AppBody(ft.UserControl):
             controls=[
                 rail,
                 ft.VerticalDivider(width=2, color=ft.colors.BLACK),
-                page
+                currentPage
             ],
         )
 
@@ -388,31 +390,23 @@ class MailApp(ft.UserControl):
         while True:
             print("Refresh inbox")
             await self.on_fetch_mail_clicked(None)
-            await asyncio.sleep(10)  # Sleep for 10 minutes
+            await asyncio.sleep(5)  # Sleep for 10 minutes
 
     def __init__(self):
         super().__init__()
         self.app_header = AppHeader(self.on_fetch_mail_clicked)
         self.app_body = AppBody()
-        self.refresh_task = None  # Store the reference to the refresh task
         self.client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
 
-    async def did_mount_async(self):
-        # self.refresh_task = asyncio.create_task(self.refresh_inbox())  # Start the refresh task
-        await self.app_body.inbox_page.update_async()
-        await self.update_async()
+    async def update_async(self):
+        await self.app_body.update_async()
 
-    async def did_update_async(
-            self):  # Called when the example is updated (for example when the user changes the value of a control)
-        print("Did update")
-        await self.app_body.inbox_page.update_async()
-        await self.update_async()
+    async def did_mount_async(self):
+        await self.page.update_async()
 
     async def will_unmount_async(self):
         print("Mail app unmount")
         self.app_body.inbox_page.controls.clear()
-        if self.refresh_task:
-            self.refresh_task.cancel()  # Cancel the refresh task when the app is unmounted
 
     def build(self):
         return ft.Column(
@@ -436,7 +430,14 @@ async def main(page: ft.Page):
     page.window_resizable = False
 
     page.theme = ft.Theme(font_family="Open Sans")
-    app_async = asyncio.create_task(page.add_async(MailApp()))
-    await app_async
+    mail_app = MailApp()
+    await page.add_async(mail_app)
+
+    mail_app_async = asyncio.gather(
+        asyncio.create_task(mail_app.refresh_inbox()),
+        asyncio.create_task(mail_app.update_async())
+    )
+    await mail_app_async
+
 
 ft.app(main)

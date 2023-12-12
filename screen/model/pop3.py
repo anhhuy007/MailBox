@@ -56,14 +56,13 @@ class POP3CLIENT:
         self.mail_curr_index = recv.split(" ")[1]
         print("----------Mail current index: ", self.mail_curr_index)
 
-
-        #open file
-        self.filter_config_path = myFunction.init_user_email_box(self.userEmail) #init user email box
+        # open file
+        self.filter_config_path = myFunction.init_user_email_box(self.userEmail)  # init user email box
         # read prev index------------------------------------------------
         open_file = open(self.filter_config_path, "r+")
         data = json.load(open_file)
         self.mail_prev_index = data["mail_index"]
-        data["mail_index"] = self.mail_curr_index #update mail index
+        data["mail_index"] = self.mail_curr_index  # update mail index
         if self.mail_prev_index > self.mail_curr_index:
             print("------------------------adjust file config index")
         print("----------Mail prev index: ", self.mail_prev_index)
@@ -109,7 +108,7 @@ class POP3CLIENT:
             dateInfo = parsed_email['date']
 
             # save mail
-            if myFunction.save_mail(parsed_email, self.userEmail,self.filter_config_path):
+            if myFunction.save_mail(parsed_email, self.userEmail, self.filter_config_path):
                 print("Save mail success")
             else:
                 print("Save mail fail")
@@ -144,10 +143,10 @@ class POP3CLIENT:
             self.send_quit_cmd()
         except Exception as e:
             print("Error occurred: ", e)
-            return (False, e)
+            return False, e
         finally:
             self.clientSocket.close()
             print("close server")
-        return (True, "Run pop3 success")
+        return True, "Run pop3 success"
 
 # //----------------------------------------------------------------------

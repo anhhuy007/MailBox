@@ -3,6 +3,7 @@ from typing import List
 import json
 from model import myFunction
 
+
 class FileAttachment:
     name: str
     type: str
@@ -34,7 +35,8 @@ class MailInfo:
     seen: int
     file_saved: int
 
-    def __init__(self, id: str, user_email: str, date: str, sender: str, to: str, cc: str, bcc: str, subject: int, body: int,
+    def __init__(self, id: str, user_email: str, date: str, sender: str, to: str, cc: str, bcc: str, subject: int,
+                 body: int,
                  file_num: int, file_list: [FileAttachment], seen: int, file_saved: int) -> None:
         self.id = id
         self.user_email = user_email
@@ -49,7 +51,6 @@ class MailInfo:
         self.file_list = [FileAttachment(**file_data) for file_data in file_list]
         self.seen = seen
         self.file_saved = file_saved
-
 
     @classmethod
     def from_json(cls, json_string):
@@ -135,7 +136,8 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                         size=20,
                         weight=ft.FontWeight.BOLD,
                         width=580,
-                        max_lines=1
+                        max_lines=2,
+                        overflow=ft.TextOverflow.ELLIPSIS
                     ),
 
                     ft.Container(
@@ -150,7 +152,13 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                 content=ft.Row(
                     controls=[
                         ft.Text("From: "),
-                        ft.Text(mail_info.sender, size=13)
+                        ft.Text(
+                            value=mail_info.sender,
+                            size=13,
+                            max_lines=1,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            width=550
+                        )
                     ]
                 )
             )
@@ -160,7 +168,12 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                 content=ft.Row(
                     controls=[
                         ft.Text("To: "),
-                        ft.Text(self.get_receiver_list(), size=13)
+                        ft.Text(
+                            value=self.get_receiver_list(),
+                            size=13,
+                            max_lines=2,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            width=550)
                     ]
                 )
             )
@@ -170,7 +183,13 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                 content=ft.Row(
                     controls=[
                         ft.Text("Date: "),
-                        ft.Text(mail_info.date, size=13)
+                        ft.Text(
+                            value=mail_info.date,
+                            size=13,
+                            max_lines=1,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            width=550
+                        )
                     ]
                 )
             )
@@ -182,7 +201,13 @@ def MailContentView(mail_info: MailInfo, _seen_mail_clicked):
                 alignment=ft.alignment.top_left,
                 content=ft.Row(
                     controls=[
-                        ft.Text(str(mail_info.body), size=13)
+                        ft.Text(
+                            value=str(mail_info.body),
+                            size=13,
+                            max_lines=14,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            width=550
+                        )
                     ]
                 )
             )

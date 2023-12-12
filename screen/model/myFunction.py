@@ -79,14 +79,15 @@ def save_mail(parsed_email, user_email, filter_config_path):
         dataDict["seen"] = 0
         dataDict["file_saved"] = 0
         # save File
-        save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..',"mailBox",user_email,"Inbox") + "\\"
+        save_mail_folder = os.path.join(os.path.dirname(__file__), '..', '..', "MailBox", user_email, "Inbox") + "\\"
         save_mail_path = save_mail_folder + getFileName(dateInfo) + ".json"
         # print (save_mail_path + "====================================")
-        outputFile = open(save_mail_path,"w")
-        json.dump(dataDict,outputFile,indent= 6)
+        outputFile = open(save_mail_path, "w")
+        json.dump(dataDict, outputFile, indent=6)
         outputFile.close()
-        
-        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path, user_email)
+
+        folder_path = get_folder_path(dataDict["subject"], dataDict["sender"], dataDict["body"], filter_config_path,
+                                      user_email)
         move_mail(save_mail_path, folder_path)
 
     except Exception as e:
@@ -94,9 +95,10 @@ def save_mail(parsed_email, user_email, filter_config_path):
         return False
     return True
 
-def save_attach(file_path):
+
+def save_attach(file_name, destination_path):
     try:
-        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\" + file_name + '.json'
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\" + file_name + '.json'
         dataDict = json.load(open(file_path))
         file_list = dataDict["file_list"]
         dateInfo = dataDict["date"]
@@ -119,7 +121,7 @@ def save_attach(file_path):
 
 def seen_mail(file_name):
     try:
-        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\mailBox\\" + file_name + '.json'
+        file_path = os.path.join(os.path.dirname(__file__), '..', '..') + "\\MailBox\\" + file_name + '.json'
         dataDict = json.load(open(file_path))
         dataDict["seen"] = 1
         outputFile = open(file_path, "w")
@@ -133,12 +135,12 @@ def seen_mail(file_name):
 
 # ////////////////////////////////////////////////////////////////////////
 def init_user_email_box(user_name):
-    user_folder = os.path.join(os.path.dirname(__file__), '..', '..',"mailBox",user_name)
+    user_folder = os.path.join(os.path.dirname(__file__), '..', '..', "MailBox", user_name)
     if not os.path.exists(user_folder):
         os.makedirs(user_folder)
 
     filter_config_path = os.path.join(user_folder, 'config.json')
-    if not os.path.exists(filter_config_path): #check file already exist
+    if not os.path.exists(filter_config_path):  # check file already exist
         config_dict = {}
 
         general_list = {
@@ -179,7 +181,6 @@ def init_user_email_box(user_name):
             if not os.path.exists(folder_path):
                 os.makedirs(folder_path)
 
-
     return filter_config_path
 
 
@@ -193,8 +194,7 @@ def move_mail(mail_path, folder_path):
 
 
 def get_folder_path(subject, sender, body, json_file_path, user_email):
-
-    filter_path = os.path.join(os.path.dirname(__file__), '..', '..', "mailBox", user_email) + "\\"
+    filter_path = os.path.join(os.path.dirname(__file__), '..', '..', "MailBox", user_email) + "\\"
     if not os.path.exists(json_file_path):
         return filter_path + "Spam\\"
     else:
@@ -222,6 +222,5 @@ def get_folder_path(subject, sender, body, json_file_path, user_email):
         if key.lower() in subject or key in body:
             folder_name = filters["Spam"]["to_folder"]
             break
-    
 
     return filter_path + folder_name + "\\"

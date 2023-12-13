@@ -63,7 +63,7 @@ class SMTPCLIENT:
 
     def send_rcpt_cmd(self):
         # Send RCPT TO command and print server response.
-        recipientNum = 0
+
         # TO
         rcptToCmd = "RCPT TO: {}\r\n".format(self.to_recipient)
         self.clientSocket.send(rcptToCmd.encode())

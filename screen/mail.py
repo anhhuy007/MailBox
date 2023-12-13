@@ -25,7 +25,11 @@ def getDate(date):
 
 class AppHeader(ft.UserControl):
 
-    def __init__(self, _on_fetch_email_clicked):
+    async def close_user_profile(self, e):
+        self.user_profile.open = False
+        await self.user_profile.update_async()
+
+    def __init__(self, _on_fetch_email_clicked, user_email, user_password):
         super().__init__()
         self.on_fetch_email_clicked = _on_fetch_email_clicked
         self.iconTitle = ft.Row(
@@ -41,6 +45,50 @@ class AppHeader(ft.UserControl):
                 )
             ]
         )
+        self.user_profile = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("User profile"),
+            content=ft.Container(
+                ft.Column(
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    height=150,
+                    width = 200,
+                    spacing=10,
+                    controls=[
+                        ft.Row(
+                            [
+                                ft.Icon(ft.icons.EMAIL_ROUNDED),
+                                ft.Text("Email: " + user_email),
+                            ]
+                        ),
+                        ft.Row(
+                            [
+                                ft.Icon(ft.icons.PASSWORD_ROUNDED),
+                                ft.Text("Password: " + user_password),
+                            ]
+                        ),
+                    ])
+            ),
+            actions=[
+                ft.OutlinedButton(
+                    text="Close",
+                    on_click=self.close_user_profile,
+                    icon=ft.icons.CLOSE_ROUNDED
+                ),
+                ft.FilledButton(
+                    text="Sign out",
+                    on_click=self.on_sign_out_clicked,
+                    icon=ft.icons.LOGOUT_ROUNDED
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+        )
+
+    async def on_user_profile_clicked(self, e):
+        print("User profile clicked")
+        self.user_profile.open = True
+        await self.update_async()
 
     async def on_sign_out_clicked(self, e):
         print("Sign out")
@@ -57,6 +105,14 @@ class AppHeader(ft.UserControl):
 
         # exit app
         await self.page.window_destroy_async()
+
+    async def did_mount_async(self):
+        self.page.overlay.append(self.user_profile)
+        await self.update_async()
+
+    async def will_unmount_async(self):
+        self.page.overlay.remove(self.user_profile)
+        await self.update_async()
 
     def build(self):
         return ft.Row(
@@ -86,8 +142,8 @@ class AppHeader(ft.UserControl):
 
                         ),
                         ft.Container(
-                            on_click=self.on_sign_out_clicked,
-                            content = ft.CircleAvatar(
+                            on_click=self.on_user_profile_clicked,
+                            content=ft.CircleAvatar(
                                 foreground_image_url="https://sohanews.sohacdn.com/thumb_w/1000/160588918557773824/2021/9/14/photo1631588006082-16315880063578503538.jpg",
                                 content=ft.Text("User"),
                             )
@@ -242,7 +298,7 @@ class MailApp(ft.UserControl):
 
     def __init__(self, user_email, user_password):
         super().__init__()
-        self.app_header = AppHeader(self.on_fetch_mail_clicked)
+        self.app_header = AppHeader(self.on_fetch_mail_clicked, user_email, user_password)
         self.app_body = AppBody(user_email, user_password)
         self.user_email = user_email
         self.user_password = user_password

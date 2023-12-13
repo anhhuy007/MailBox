@@ -4,14 +4,16 @@ from mail_content_view import MailInfo
 from mail_item_view import MailItemView
 
 
-def InboxPage():
+def InboxPage(user_email: str):
     class InboxPage(ft.UserControl):
 
         def __init__(self):
             super().__init__()
             self.mails = ft.Column(
                 spacing=3,
-                scroll=ft.ScrollMode.ALWAYS
+                scroll=ft.ScrollMode.ALWAYS,
+                on_scroll_interval=0,
+                height=560
             )
 
         def build(self):
@@ -29,7 +31,7 @@ def InboxPage():
                 with open(folder + "/" + file, "r") as json_file:
                     data = json_file.read()
                     mail_info = MailInfo.from_json(data)
-                    mail = MailItemView(mail_info)
+                    mail = MailItemView(mail_info, user_email)
                     self.mails.controls.append(mail)
 
             inbox_title = ft.Container(padding=ft.padding.only(top=10, left=5), content=ft.Row(width=1050, controls=[

@@ -1,10 +1,39 @@
-import os
+import flet as ft
 
-# Get the current directory
-current_directory = "D:\MailBox\Filter\hahuy@fitus.edu.vn"
+def main(page: ft.Page):
+    page.title = "Routes Example"
 
-# Get a list of all subdirectories in the current directory
-subdirectories = [d for d in os.listdir(current_directory) if os.path.isdir(os.path.join(current_directory, d))]
+    def route_change(route):
+        page.views.clear()
+        page.views.append(
+            ft.View(
+                "/",
+                [
+                    ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
+                ],
+            )
+        )
+        if page.route == "/store":
+            page.views.append(
+                ft.View(
+                    "/store",
+                    [
+                        ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                    ],
+                )
+            )
+        page.update()
 
-# Print the list of subdirectories
-print("Subdirectories in", current_directory, ":", subdirectories)
+    def view_pop(view):
+        page.views.pop()
+        top_view = page.views[-1]
+        page.go(top_view.route)
+
+    page.on_route_change = route_change
+    page.on_view_pop = view_pop
+    page.go(page.route)
+
+
+ft.app(target=main, view=ft.AppView.WEB_BROWSER)

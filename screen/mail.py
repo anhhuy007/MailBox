@@ -1,6 +1,5 @@
-import random
-
 import flet as ft
+import login as Login
 import mail_compose_view as MailComposeView
 import mail_item_view as MailItemView
 import inbox_mail_view as InboxMailView
@@ -12,9 +11,10 @@ import sys
 import asyncio
 
 # Add a directory to sys.path
-sys.path.append(os.path.join(os.path.dirname(__file__),"model\\" ))   # noqa
+sys.path.append(os.path.join(os.path.dirname(__file__), "model\\"))  # noqa
 from model import pop3 as POP3Client
 from model import myFunction
+import json
 
 
 def getDate(date):
@@ -28,8 +28,6 @@ class AppHeader(ft.UserControl):
     def __init__(self, _on_fetch_email_clicked):
         super().__init__()
         self.on_fetch_email_clicked = _on_fetch_email_clicked
-
-    def build(self):
         self.iconTitle = ft.Row(
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=10,
@@ -44,6 +42,23 @@ class AppHeader(ft.UserControl):
             ]
         )
 
+    async def on_sign_out_clicked(self, e):
+        print("Sign out")
+        # clear authentication_info.json
+        authen_info_path = os.path.join(os.path.dirname(__file__), '..', 'authentication_info.json')
+        with open(authen_info_path, "w") as json_file:
+            data_dict_ = {
+                "user_email": "",
+                "user_password": ""
+            }
+            json.dump(data_dict_, json_file)
+            # close file
+            json_file.close()
+
+        # exit app
+        await self.page.window_destroy_async()
+
+    def build(self):
         return ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -70,9 +85,12 @@ class AppHeader(ft.UserControl):
                             on_click=self.on_fetch_email_clicked
 
                         ),
-                        ft.CircleAvatar(
-                            foreground_image_url="https://sohanews.sohacdn.com/thumb_w/1000/160588918557773824/2021/9/14/photo1631588006082-16315880063578503538.jpg",
-                            content=ft.Text("User")
+                        ft.Container(
+                            on_click=self.on_sign_out_clicked,
+                            content = ft.CircleAvatar(
+                                foreground_image_url="https://sohanews.sohacdn.com/thumb_w/1000/160588918557773824/2021/9/14/photo1631588006082-16315880063578503538.jpg",
+                                content=ft.Text("User"),
+                            )
                         )
                     ]
                 )
@@ -118,11 +136,11 @@ def ComposeButton():
 
 class AppBody(ft.UserControl):
 
-    def __init__(self):
+    def __init__(self, user_email: str, user_password: str):
         super().__init__()
-        self.inbox_page = InboxMailView.InboxPage()
-        self.spam_page = SpamMailView.SpamPage()
-        self.filter_page = FilterMailView.FilterPage()
+        self.inbox_page = InboxMailView.InboxPage(user_email)
+        self.spam_page = SpamMailView.SpamPage(user_email)
+        self.filter_page = FilterMailView.FilterPage(user_email, user_password)
         self.inbox_page.mails.controls.clear()
         self.page_number = 0
         self.currentPage = ft.Container()
@@ -194,7 +212,7 @@ class MailApp(ft.UserControl):
         self.client.run_pop3()
 
         # read all json files from folder mailBox
-        folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', 'hahuy@fitus.edu.vn', 'Inbox')
+        folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', self.user_email, 'Inbox')
         mail_list = []
         for file in os.listdir(folder):
             if file.endswith(".json"):
@@ -211,7 +229,7 @@ class MailApp(ft.UserControl):
             with open(folder + "/" + file, "r") as json_file:
                 data = json_file.read()
                 mail_info = MailInfo.from_json(data)
-                mail = MailItemView.MailItemView(mail_info)
+                mail = MailItemView.MailItemView(mail_info, self.user_email)
                 self.app_body.inbox_page.mails.controls.append(mail)
 
         await self.app_body.inbox_page.mails.update_async()
@@ -222,11 +240,13 @@ class MailApp(ft.UserControl):
             await self.on_fetch_mail_clicked(None)
             await asyncio.sleep(10)  # Sleep for 10 minutes
 
-    def __init__(self):
+    def __init__(self, user_email, user_password):
         super().__init__()
         self.app_header = AppHeader(self.on_fetch_mail_clicked)
-        self.app_body = AppBody()
-        self.client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
+        self.app_body = AppBody(user_email, user_password)
+        self.user_email = user_email
+        self.user_password = user_password
+        self.client = POP3Client.POP3CLIENT(user_email, user_password)
 
     async def update_async(self):
         await self.app_body.update_async()
@@ -249,6 +269,29 @@ class MailApp(ft.UserControl):
 
 
 async def main(page: ft.Page):
+    async def login():
+        # save login info to authentication_info.json
+        authen_info_path = os.path.join(os.path.dirname(__file__), '..', 'authentication_info.json')
+        with open(authen_info_path, "w") as json_file:
+            data_dict_ = {
+                "user_email": login_page.user_email.value,
+                "user_password": login_page.user_password.value
+            }
+            json.dump(data_dict_, json_file)
+            # close file
+            json_file.close()
+
+        # init user email box
+        await page.clean_async()
+        myFunction.init_user_email_box(login_page.user_email.value)
+        mail_app = MailApp(login_page.user_email.value, login_page.user_password.value)
+        await page.add_async(mail_app)
+        mail_app_async = asyncio.gather(
+            asyncio.create_task(mail_app.update_async()),
+            asyncio.create_task(mail_app.refresh_inbox())
+        )
+        await mail_app_async
+
     page.theme_mode = ft.ThemeMode.LIGHT
     page.title = "MailBox"
     page.scroll = ft.ScrollMode.ADAPTIVE
@@ -256,20 +299,27 @@ async def main(page: ft.Page):
         "Kanit": "https://raw.githubusercontent.com/google/fonts/master/ofl/kanit/Kanit-Bold.ttf",
         "Open Sans": "/fonts/OpenSans-Regular.ttf"
     }
-
     page.window_resizable = False
-
     page.theme = ft.Theme(font_family="Open Sans")
-    myFunction.init_user_email_box("hahuy@fitus.edu.vn")
-    mail_app = MailApp()
-    await page.add_async(mail_app)
 
+    login_page = Login.LoginScreen(login)
+    await page.add_async(login_page)
 
-    mail_app_async = asyncio.gather(
-        asyncio.create_task(mail_app.update_async()),
-        asyncio.create_task(mail_app.refresh_inbox())
-    )
-    await mail_app_async
+    # read previous login info from authentication_info.json
+    authen_info_path = os.path.join(os.path.dirname(__file__), '..', 'authentication_info.json')
+    with open(authen_info_path, "r") as json_file:
+        data_ = json_file.read()
+        data_dict_ = json.loads(data_)
+        if data_dict_["user_email"] != "":
+            login_page.user_email.value = data_dict_["user_email"]
+            login_page.user_password.value = data_dict_["user_password"]
+            # close file
+            json_file.close()
+            await login()
+        else:
+            await asyncio.gather(
+                asyncio.create_task(login_page.update_async()),
+            )
 
 
 ft.app(main)

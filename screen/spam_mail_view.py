@@ -4,7 +4,7 @@ from mail_content_view import MailInfo
 from mail_item_view import MailItemView
 
 
-def SpamPage():
+def SpamPage(user_email: str):
     class SpamPage(ft.UserControl):
 
         def __init__(self):
@@ -16,7 +16,7 @@ def SpamPage():
 
         def build(self):
             # read all json files from folder mailBox
-            folder = os.path.join(os.path.dirname(__file__), '..', 'mailBox')
+            folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', user_email, 'Spam')
             mail_list = []
             for file in os.listdir(folder):
                 if file.endswith(".json"):
@@ -29,7 +29,7 @@ def SpamPage():
                 with open(folder + "/" + file, "r") as json_file:
                     data = json_file.read()
                     mail_info = MailInfo.from_json(data)
-                    mail = MailItemView(mail_info)
+                    mail = MailItemView(mail_info, user_email)
                     self.mails.controls.append(mail)
 
             inbox_title = ft.Container(padding=ft.padding.only(top=10, left=5), content=ft.Row(width=1050, controls=[

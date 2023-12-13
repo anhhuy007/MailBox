@@ -33,6 +33,7 @@ class SMTPCLIENT:
 
     def connect_server(self):
         print("Establist contact to mail server {} at port {}".format(self.server, self.port))
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientSocket.connect(self.serverAddr)
 
         # check connect fail

@@ -4,11 +4,13 @@ from mail_content_view import MailInfo
 from mail_item_view import MailItemView
 
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__),"model\\" )) 
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "model\\"))
 from model import pop3 as POP3Client
 from model import myFunction
 
-def FilterPage():
+
+def FilterPage(user_email, user_password):
     def getDirectoryList(current_directory: str):
         subdirectories = [d for d in os.listdir(current_directory) if os.path.isdir(os.path.join(current_directory, d))]
         return subdirectories
@@ -21,7 +23,7 @@ def FilterPage():
             self.client.run_pop3()
 
             # read all json files from folder mailBox
-            folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', 'hahuy@fitus.edu.vn', str(self.filter_option.value))
+            folder = os.path.join(os.path.dirname(__file__), '..', 'MailBox', user_email, str(self.filter_option.value))
             mail_list = []
             for file in os.listdir(folder):
                 if file.endswith(".json"):
@@ -38,7 +40,7 @@ def FilterPage():
                 with open(folder + "/" + file, "r") as json_file:
                     data = json_file.read()
                     mail_info = MailInfo.from_json(data)
-                    mail = MailItemView(mail_info)
+                    mail = MailItemView(mail_info, user_email)
                     self.mails.controls.append(mail)
 
             await self.mails.update_async()
@@ -57,10 +59,11 @@ def FilterPage():
                 height=60,
                 content_padding=ft.padding.only(left=15, top=5, bottom=5, right=15),
             )
-            self.options = getDirectoryList(os.path.join(os.path.dirname(__file__), '..', 'MailBox',"hahuy@fitus.edu.vn"))
+            self.options = getDirectoryList(
+                os.path.join(os.path.dirname(__file__), '..', 'MailBox', user_email))
             for option in self.options:
                 self.filter_option.options.append(ft.dropdown.Option(option))
-            self.client = POP3Client.POP3CLIENT("hahuy@fitus.edu.vn", "123")
+            self.client = POP3Client.POP3CLIENT(user_email, user_password)
 
         def build(self):
             # read all json files from folder mailBox

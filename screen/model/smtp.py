@@ -19,7 +19,6 @@ class SMTPCLIENT:
     clientAddr = "127.0.0.1"
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    sendMethod = 0
 
     def __init__(self, userEmail, to_recipient, cc_list, bcc_list, subject, body, attachment_list):
 
@@ -152,6 +151,7 @@ class SMTPCLIENT:
         if recv[0:3] != '221':
             raise Exception('221 reply not received from server.')
         self.clientSocket.close()
+        print("Socket closed")
 
     def send_mail(self):
         try:
@@ -175,7 +175,7 @@ class SMTPCLIENT:
             return False, e
 
         finally:
-            print("Socket closed")
+            
             return True, "Send mail success"
 
 

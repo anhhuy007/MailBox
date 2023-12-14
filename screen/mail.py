@@ -155,14 +155,14 @@ class AppHeader(ft.UserControl):
         )
 
 
-def ComposeButton():
+def ComposeButton(user_email: str):
     class ComposeButton(ft.FloatingActionButton):
 
         def __init__(self):
             super().__init__()
             self.icon = ft.icons.CREATE
             self.text = "Compose"
-            self.bs = MailComposeView.MailComposeView()
+            self.bs = MailComposeView.MailComposeView(user_email)
             self.on_click = self.show_bs
 
         async def show_bs(self, e):
@@ -200,6 +200,7 @@ class AppBody(ft.UserControl):
         self.inbox_page.mails.controls.clear()
         self.page_number = 0
         self.currentPage = ft.Container()
+        self.compose_button = ComposeButton(user_email)
 
     def build(self):
         # AppBody attributes
@@ -223,7 +224,7 @@ class AppBody(ft.UserControl):
         rail = ft.NavigationRail(
             selected_index=0,
             label_type=ft.NavigationRailLabelType.ALL,
-            leading=ComposeButton(),
+            leading=self.compose_button,
             group_alignment=-0.9,
             destinations=[
                 ft.NavigationRailDestination(

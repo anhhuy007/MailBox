@@ -8,7 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "model\\"))
 import smtp
 
 
-def MailComposeView():
+def MailComposeView(user_email: str):
     class MailCompose_View(ft.BottomSheet):
 
         async def on_close(self, e):
@@ -32,7 +32,7 @@ def MailComposeView():
 
                 # send email
                 client = smtp.SMTPCLIENT(
-                    "codingAkerman@fit.hcmus.edu.vn",
+                    user_email,
                     self.textfield_to.value,
                     self.textfield_cc.value,
                     self.textfield_bcc.value,

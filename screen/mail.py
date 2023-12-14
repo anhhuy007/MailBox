@@ -295,7 +295,8 @@ class MailApp(ft.UserControl):
         while True:
             print("Refresh inbox")
             await self.on_fetch_mail_clicked(None)
-            await asyncio.sleep(10)  # Sleep for 10 minutes
+            await asyncio.sleep(myFunction.get_autoload_time(self.user_email))  # Sleep for 10 minutes
+
 
     def __init__(self, user_email, user_password):
         super().__init__()

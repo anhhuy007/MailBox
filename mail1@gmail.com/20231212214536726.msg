@@ -1,19 +1,19 @@
-Content-Type: multipart/mixed; boundary="===============6309623502143563761=="
+Content-Type: multipart/mixed; boundary="===============1771414494700109783=="
 MIME-Version: 1.0
-date: 01:47:08 13/12/2023
+date: 21:45:36 12/12/2023
 sender: codingAkerman@fit.hcmus.edu.vn
-to: hahuy@fitus.edu.vn
-cc: imanhhuy007@gmail.com, mail01@gmail.com
-bcc: hahuy@gmail.com, mail02@gmail.com
-subject: Project testing (urgent, ASAP)
+to: hahuy@gmail.com
+cc: mail1@gmail.com
+bcc: 
+subject: test cc1
 
---===============6309623502143563761==
+--===============1771414494700109783==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
---===============6309623502143563761==
+test cc1 pdf
+--===============1771414494700109783==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -3027,4 +3027,4 @@ WzxDMkIwMDY0Q0M2ODBENTRBQjlDNDhBQTY3MkRDNjUyNj48QzJCMDA2NENDNjgwRDU0QUI5QzQ4
 QUE2NzJEQzY1MjY+XSAvUHJldiAxNjkyOTQvWFJlZlN0bSAxNjg4NTc+Pg0Kc3RhcnR4cmVmDQox
 NzExNzINCiUlRU9G
 
---===============6309623502143563761==--
+--===============1771414494700109783==--

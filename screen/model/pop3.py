@@ -50,6 +50,7 @@ class POP3CLIENT:
         statCmd = "STAT\r\n"
         self.clientSocket.send(statCmd.encode())
         recv = self.clientSocket.recv(1024).decode()
+        #handle error
         print(recv)
         if recv[0:3].lower() == '-err':
             raise Exception('Negative response from server. Stop program')
@@ -81,7 +82,6 @@ class POP3CLIENT:
             raise Exception('Negative response from server. Stop program')
 
     def send_retr_cmd(self):
-
         for index in range(int(self.mail_prev_index) + 1, int(self.mail_curr_index) + 1):
             retrCmd = "RETR {}\r\n".format(index)
             self.clientSocket.send(retrCmd.encode())

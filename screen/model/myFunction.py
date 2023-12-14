@@ -158,7 +158,7 @@ def init_user_email_box(user_name):
             "mail_server": "127.0.0.1",
             "smtp_port": "2225",
             "pop3_port": "3335",
-            "auto_load": "20"
+            "auto_load": "10"
         }
         filter_list = {
             "From": {
@@ -179,8 +179,9 @@ def init_user_email_box(user_name):
             }
         }
         config_dict["General"] = general_list
-        config_dict["Filter"] = filter_list
         config_dict["mail_index"] = "0"
+        config_dict["Filter"] = filter_list
+
 
         with open(filter_config_path, 'w') as json_file:
             json.dump(config_dict, json_file, indent=4)
@@ -233,3 +234,11 @@ def get_folder_path(subject, sender, body, json_file_path, user_email):
             break
 
     return filter_path + folder_name + "\\"
+
+
+
+def get_autoload_time(user_email):
+    file_config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'MailBox', user_email, 'config.json')
+    with open(file_config_path) as f:
+        dataDict = json.load(f)
+    return int(dataDict["General"]["auto_load"])

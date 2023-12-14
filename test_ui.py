@@ -1,39 +1,47 @@
 import flet as ft
 
 def main(page: ft.Page):
-    page.title = "Routes Example"
+    page.title = "AlertDialog examples"
 
-    def route_change(route):
-        page.views.clear()
-        page.views.append(
-            ft.View(
-                "/",
-                [
-                    ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
-                ],
-            )
-        )
-        if page.route == "/store":
-            page.views.append(
-                ft.View(
-                    "/store",
-                    [
-                        ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
-                    ],
-                )
-            )
+    dlg = ft.AlertDialog(
+        title=ft.Text("Hello, you!"), on_dismiss=lambda e: print("Dialog dismissed!")
+    )
+
+    def close_dlg(e):
+        dlg_modal.open = False
         page.update()
 
-    def view_pop(view):
-        page.views.pop()
-        top_view = page.views[-1]
-        page.go(top_view.route)
+    dlg_modal = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Please confirm"),
+        content=ft.Container(
+            ft.Column([
+                ft.Text("Do you really want to delete all those files?"),
+                ft.Text("This action cannot be undone!"),
+                ft.Text("Kgjlkd fsld faldd")
+            ])
+        ),
+        actions=[
+            ft.TextButton("Yes", on_click=close_dlg),
+            ft.TextButton("No", on_click=close_dlg),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+        on_dismiss=lambda e: print("Modal dialog dismissed!"),
+    )
 
-    page.on_route_change = route_change
-    page.on_view_pop = view_pop
-    page.go(page.route)
+    def open_dlg(e):
+        page.dialog = dlg
+        dlg.open = True
+        page.update()
 
+    def open_dlg_modal(e):
+        page.dialog = dlg_modal
+        dlg_modal.open = True
+        page.update()
 
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+    page.add(
+        ft.ElevatedButton("Open dialog", on_click=open_dlg),
+        ft.ElevatedButton("Open modal dialog", on_click=open_dlg_modal),
+    )
+
+ft.app(target=main)

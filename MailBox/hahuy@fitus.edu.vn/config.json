@@ -5,8 +5,9 @@
             "mail_server": "127.0.0.1",
             "smtp_port": "2225",
             "pop3_port": "3335",
-            "auto_load": "20"
+            "auto_load": "10"
       },
+      "mail_index": "4",
       "Filter": {
             "From": {
                   "key": [
@@ -37,6 +38,5 @@
                   ],
                   "to_folder": "Spam"
             }
-      },
-      "mail_index": "3"
+      }
 }

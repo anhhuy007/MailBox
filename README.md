@@ -16,7 +16,7 @@
 
 ## About The Project
 
-![MailBox app!](/demo/main.png "Main screen")
+![MailBox app!](/demoImg/main.png "Main screen")
 
 MailBox is an app for send and recieve email by SMTP (Simple Mail Transfer Protocol) and POP3 (Post Office Protocol 3). This app serves educational purpose only.
 
@@ -65,9 +65,9 @@ Install Java 8 from [this link](https://www.java.com/download/ie_manual.jsp "Jav
  
  3. Run the mail.py file in the project to start
  4. App automatically logins with default mail, you can change the mail by click in the avatar at top right corner to sign out
-![Sign Out Screen](/demo/signout.png "Sign Out screen")
+![Sign Out Screen](/demoImg/signout.png "Sign Out screen")
  5. After sign out, the app will close. We run file mail.py again and login screen appear (any password)
-![Login Screen](/demo/login.png "Login screen")
+![Login Screen](/demoImg/login.png "Login screen")
 
 
 

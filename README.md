@@ -18,25 +18,27 @@
 
 ![MailBox app!](/demo/main.png "Main screen")
 
-MailBox is a versatile and user-friendly application designed for seamless communication through emails. With a focus on simplicity and functionality, EmailConnect allows users to effortlessly send and receive emails using the widely used SMTP (Simple Mail Transfer Protocol) for sending and POP3 (Post Office Protocol 3) for receiving. 
+MailBox is an app for send and recieve email by SMTP (Simple Mail Transfer Protocol) and POP3 (Post Office Protocol 3). This app serves educational purpose only.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+## Credit
+We would like to extend our sincere thanks to the creators of the server jar file used in this app. The server jar file is sourced from the [Test-mail-server](https://github.com/eugenehr/test-mail-server) on GitHub. We are committed to honoring the open-source licensing terms and providing proper credit to the original creators.
+
 
 ### Built With
 
 * [![Python][Python.js]][Python-url]
 
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 
 ## Getting Started
 
 ### Prerequisites
-1. Java
+1. Java version 8
 
-Install Java from [website](https://www.java.com/download/ie_manual.jsp "Java download link").
+The server is suitable for older version of java and java 8 is recommended,
+Install Java 8 from [this link](https://www.java.com/download/ie_manual.jsp "Java download link").
 
 ### Installation
 
@@ -45,21 +47,28 @@ Install Java from [website](https://www.java.com/download/ie_manual.jsp "Java do
     git clone https://github.com/anhhuy007/MailBox.git
     ```
     
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 
 ## Usage
 
 1. Navigate to the project folder
-2. Run the terminal code
+2. Run the server .jar file by open terminal and enter this code
 	```
 	java-jar test-mail-server-1.0.jar -s 2225 -p 3335 -m./
 	```
- 3. Run the mail.py file in the project to start
- 4. App automatically login with default mail, you can change the mail by click in the avatar at top right corner
+ 
+ If there is more than one java version in your computer, enter the path leads to java file in folder bin of java version 8, for example
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+	"C:\Program Files\Java\jdk-1.8\bin\java" -jar test-mail-server-1.0.jar -s 2225 -p 3335 -m ./
+
+ 
+ 3. Run the mail.py file in the project to start
+ 4. App automatically logins with default mail, you can change the mail by click in the avatar at top right corner to sign out
+![Sign Out Screen](/demo/signout.png "Sign Out screen")
+ 5. After sign out, the app will close. We run file mail.py again and login screen appear (any password)
+![Login Screen](/demo/login.png "Login screen")
+
 
 
 <!-- CONTACT -->
@@ -70,7 +79,6 @@ Anh Huy Huynh - [@anhhuy007](https://twitter.com/anhhuy007) - imanhhuy007@gmail.
 
 Project Link: [https://github.com/anhhuy007/MailBox](https://github.com/anhhuy007/MailBox)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 

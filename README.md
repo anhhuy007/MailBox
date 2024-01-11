@@ -16,7 +16,7 @@
 
 ## About The Project
 
-[![MailBox app][product-screenshot]][product-screenshot]
+![MailBox app!](/demo/main.png "Main screen")
 
 MailBox is a versatile and user-friendly application designed for seamless communication through emails. With a focus on simplicity and functionality, EmailConnect allows users to effortlessly send and receive emails using the widely used SMTP (Simple Mail Transfer Protocol) for sending and POP3 (Post Office Protocol 3) for receiving. 
 
@@ -57,6 +57,7 @@ Install Java from [website](https://www.java.com/download/ie_manual.jsp "Java do
 	java-jar test-mail-server-1.0.jar -s 2225 -p 3335 -m./
 	```
  3. Run the mail.py file in the project to start
+ 4. App automatically login with default mail, you can change the mail by click in the avatar at top right corner
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

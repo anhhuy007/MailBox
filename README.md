@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/AnhHuy007/MailBox">
-    <img src="demo/icon.png" alt="Logo" width="80" height="80">
+    <img src="demoImg/icon.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">MailBox app</h3>
